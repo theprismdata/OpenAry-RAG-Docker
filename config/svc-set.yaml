@@ -1,0 +1,81 @@
+langmodel:
+  activemode: ollama
+
+  openai:
+    apikey: ""
+    chat_model: "gpt-4o"
+  ollama:
+    address: "http://ollama:11434"
+    chat_model: "gemma2:2b"
+
+embeddingmodel:
+  sentensetransformer:
+    embedding_model: "snunlp/KR-SBERT-V40K-klueNLI-augSTS"
+
+minio:
+  address: "minio:9000"
+  accesskey: genai_minio
+  secretkey: openary_minio
+
+redis:
+  address: "redis://redis:6379"
+
+database:
+  vector_db_postgres:
+    address: "postgres"
+    port: 5432
+    id: "genai"
+    pwd: "openary"
+    database: "genai_svc_dev"
+
+  opds_system_db:
+    address: "mariadb"
+    port: 3306
+    id: "genai"
+    pwd: "openary"
+    database: "llm_dev"
+
+  mongodb:
+    mongo_host: "mongodb"
+    mongo_port: 27017
+    mongo_user: "genai"
+    mongo_passwd: "openary"
+    auth_source: "genai_svc_dev"
+    chat_history: "llm_chat_history"
+
+SECRET_KEY: "1506874ba5c78a273e6d3a91f1db71ba25d5628ed525072d77056f638e7f0705"
+REFRESH_TOKEN_SECRET_KEY: "707cea74d1560b2453f75c1c7b6b387a9dcea7444c0c6382a09591973b5435aa"
+
+mgmt_rest_config:
+  port: 9001
+
+api_rest_config:
+  port: 9000
+
+external_svc:
+  management_service: "http://opds-mgmt:9001/mgmt" #internal
+
+mqtt:
+  address: "rabbitmq"
+  port: 5672
+  id: genai
+  pwd: openary
+  virtualhost: "/"
+
+streamlit-opds-chatapi:
+  address:
+    chat_url: "http://opds-chatapi:9000/chatapi/rqa/"
+    session_history_url: "http://opds-chatapi:9000/chatapi/getasessionhistory"
+    login_url: "http://opds-chatapi:9000/login"
+    session_list_url: "http://opds-chatapi:9000/chatapi/getsessionlist/"
+    file_upload_url: "http://opds-chatapi:9000/files/upload/"
+
+RABBITMQ_SVC_QUEUE:
+  PREPROCES_Q_NAME: 'OPDS_PREP_REQ'
+  PREPROCES_ROUTEKEY: 'OPDS_PREP_REQ'
+
+  SUMMARY_Q_NAME: 'OPDS_SUMMARY_REQ'
+  SUMMARY_ROUTE_KEY: 'OPDS_SUMMARY_REQ'
+
+  EMBEDDING_Q_NAME: 'OPDS_EMBEDDING_REQ'
+  EMBEDDING_ROUTE_KEY: 'OPDS_EMBEDDING_REQ'
