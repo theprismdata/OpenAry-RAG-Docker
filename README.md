@@ -1,4 +1,7 @@
-# openary-rag-docker-compose
+# OpenAry Rag Docker for Your PC
+#### RAG에 꼭 고사양의 PC가 필요하진 않습니다.
+#### 물론 GPU가 있어면 빠릅니다.
+#### 하지만 요즘 3D 게임 즐길 CPU 사양이면, 노트북이나 데스크탑에서도 되요..
 
 ![openary-streamlit-chat.png](features/openary-streamlit-chat.png)
 ### How To Run
@@ -33,7 +36,7 @@ docker-compose -f .\docker-compose.yaml up -d
 주요 서비스 주소
 ### 사용자 관리 DOC API
 http://localhost:9001/api-docs
-### 채탱 관리 DOC API
+### 대화 관리 DOC API
 http://localhost:9000/api/docs
 ### Streamlit을 이용한 지식 조회
 http://localhost:9002
