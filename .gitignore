@@ -5,7 +5,6 @@ mongodb_data/
 pgdata/
 rabbitmq_data/
 ollama/
-
 chatapp/node_modules
 chatapp/.idea
 config/svc-set-debug.yaml
