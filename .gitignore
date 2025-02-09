@@ -1,0 +1,12 @@
+.idea/
+mariadb_data/
+minio_data/
+mongodb_data/
+pgdata/
+rabbitmq_data/
+ollama/
+
+chatapp/node_modules
+chatapp/.idea
+config/svc-set-debug.yaml
+docker-compose-debug.yaml
