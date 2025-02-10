@@ -1,7 +1,8 @@
 // src/components/chat/ChatHistory.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
+import axios from 'axios';
 
 export default function ChatHistory({
   sessions,
@@ -9,7 +10,85 @@ export default function ChatHistory({
   currentSessionId,
 }) {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { user, token } = useSelector((state) => state.auth);
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+
+  const handleFileSelect = (event) => {
+    const files = Array.from(event.target.files);
+    setSelectedFiles(files);
+    setUploadStatus(null);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFiles.length) {
+      setUploadStatus({
+        type: 'error',
+        message: '선택된 파일이 없습니다.'
+      });
+      return;
+    }
+
+    setUploading(true);
+    setUploadStatus(null);
+
+    const formData = new FormData();
+    formData.append('email', user.email);
+
+    // FormData 내용 확인을 위한 로깅
+    console.log('Email:', user.email);
+    console.log('Selected files:', selectedFiles);
+
+    selectedFiles.forEach(file => {
+      formData.append('upload_files', file);
+      console.log('Appending file:', file.name);
+    });
+
+    // FormData 내용 확인
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    try {
+      const response = await axios({
+        method: 'post',
+        url: 'http://localhost:9000/files/upload/',
+        data: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const result = response.data;
+      setUploadStatus({
+        type: 'success',
+        message: `${result.total_files}개 파일 업로드 완료 (총 ${(result.total_size / 1024).toFixed(1)}KB)`
+      });
+      setSelectedFiles([]); // 업로드 성공 후 선택된 파일 목록 초기화
+      // 파일 입력 필드 초기화
+      const fileInput = document.getElementById('file-input');
+      if (fileInput) fileInput.value = '';
+    } catch (error) {
+      console.error('Upload error:', error);
+      setUploadStatus({
+        type: 'error',
+        message: '파일 업로드 중 오류가 발생했습니다.'
+      });
+    } finally {
+      setUploading(false);
+      // 5초 후 상태 메시지 제거
+      setTimeout(() => setUploadStatus(null), 5000);
+    }
+  };
+
+  // 파일 크기를 보기 좋게 변환하는 함수
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
 
   return (
     <div className="h-full bg-gray-50 flex flex-col">
@@ -34,6 +113,81 @@ export default function ChatHistory({
             );
           })}
         </div>
+      </div>
+
+      {/* 파일 업로드 섹션 */}
+      <div className="border-t border-gray-200 p-4">
+        <div className="mb-4">
+          <label className="block">
+            <span className="sr-only">파일 선택</span>
+            <div className="relative">
+              <input
+                id="file-input"
+                type="file"
+                multiple
+                onChange={handleFileSelect}
+                disabled={uploading}
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-lg file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100
+                  disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+            </div>
+          </label>
+        </div>
+
+        {/* 선택된 파일 목록 */}
+        {selectedFiles.length > 0 && (
+          <div className="mb-4">
+            <p className="text-sm font-medium text-gray-700 mb-2">선택된 파일 ({selectedFiles.length}개):</p>
+            <ul className="text-sm text-gray-600 space-y-1">
+              {selectedFiles.map((file, index) => (
+                <li key={index} className="flex justify-between">
+                  <span className="truncate">{file.name}</span>
+                  <span className="ml-2 text-gray-500">{formatFileSize(file.size)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* 전송 버튼 */}
+        <button
+          onClick={handleUpload}
+          disabled={uploading || selectedFiles.length === 0}
+          className={`w-full py-2 px-4 rounded-lg text-white text-sm font-medium
+            ${uploading || selectedFiles.length === 0
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 transition-colors duration-200'
+            }
+          `}
+        >
+          {uploading ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              파일 전송 중...
+            </span>
+          ) : (
+            '파일 전송'
+          )}
+        </button>
+
+        {/* 업로드 상태 메시지 */}
+        {uploadStatus && (
+          <div className={`mt-4 p-3 rounded-lg text-sm ${
+            uploadStatus.type === 'success'
+              ? 'bg-green-50 text-green-700'
+              : 'bg-red-50 text-red-700'
+          }`}>
+            {uploadStatus.message}
+          </div>
+        )}
       </div>
 
       {/* 사용자 정보 및 로그아웃 섹션 */}
