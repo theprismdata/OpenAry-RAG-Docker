@@ -5,7 +5,6 @@
 ### Backend api는 https://github.com/theprismdata/OpenAry-RAG-Docker 를 참조하세요.
 
 npm install -D tailwindcss@3.4.17 postcss autoprefixer
-
 npx tailwindcss init -p
 
 npm run dev

@@ -61,21 +61,29 @@ export default function ChatWindow() {
   };
 
   return (
-    <div className="flex h-screen">
-      <div className="w-1/4 border-r">
+    <div className="flex h-full">
+      {/* 왼쪽 사이드바 - 채팅 히스토리 */}
+      <div className="w-1/4 h-full border-r border-gray-200">
         <ChatHistory
           sessions={sessions}
           onSessionSelect={setSessionId}
           currentSessionId={sessionId}
         />
       </div>
-      <div className="w-3/4 flex flex-col">
-        <div className="flex-1 overflow-y-auto p-4">
+
+      {/* 오른쪽 채팅 영역 */}
+      <div className="flex-1 flex flex-col h-full">
+        {/* 메시지 표시 영역 */}
+        <div className="flex-1 overflow-y-auto p-4 bg-white">
           {messages.map((message, index) => (
             <ChatMessage key={index} {...message} />
           ))}
         </div>
-        <MessageInput onSendMessage={handleSendMessage} />
+
+        {/* 메시지 입력 영역 */}
+        <div className="border-t border-gray-200">
+          <MessageInput onSendMessage={handleSendMessage} />
+        </div>
       </div>
     </div>
   );
