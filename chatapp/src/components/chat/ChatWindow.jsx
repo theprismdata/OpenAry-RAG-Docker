@@ -25,6 +25,49 @@ export default function ChatWindow() {
     }
   };
 
+  const fetchSessionHistory = async (selectedSessionId) => {
+    try {
+      const response = await fetch("http://localhost:9000/chatapi/getasessionhistory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email: user.email,
+          session: selectedSessionId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch session history");
+      }
+
+      const data = await response.json();
+      const historyMessages = data.history.flatMap((item) => [
+        {
+          type: "user",
+          content: item.question,
+        },
+        {
+          type: "bot",
+          content: item.answer,
+          sources: item.sourcelist,
+          searchResults: item.searchlist,
+        },
+      ]);
+
+      setMessages(historyMessages);
+    } catch (error) {
+      console.error("Failed to fetch session history:", error);
+    }
+  };
+
+  const handleSessionSelect = (selectedSessionId) => {
+    setSessionId(selectedSessionId);
+    fetchSessionHistory(selectedSessionId);
+  };
+
   const handleSendMessage = async (question) => {
     try {
       const response = await sendMessage(
@@ -66,7 +109,7 @@ export default function ChatWindow() {
       <div className="w-1/4 h-full border-r border-gray-200">
         <ChatHistory
           sessions={sessions}
-          onSessionSelect={setSessionId}
+          onSessionSelect={handleSessionSelect}
           currentSessionId={sessionId}
         />
       </div>
