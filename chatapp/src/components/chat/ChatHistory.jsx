@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
 import axios from 'axios';
+import { X } from 'lucide-react';
 
 export default function ChatHistory({
   sessions,
@@ -17,8 +18,14 @@ export default function ChatHistory({
 
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files);
-    setSelectedFiles(files);
+    setSelectedFiles(prev => [...prev, ...files]);
     setUploadStatus(null);
+    // 파일 입력 필드 초기화 (같은 파일을 다시 선택할 수 있도록)
+    event.target.value = '';
+  };
+
+  const handleRemoveFile = (indexToRemove) => {
+    setSelectedFiles(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
   const handleUpload = async () => {
@@ -36,19 +43,9 @@ export default function ChatHistory({
     const formData = new FormData();
     formData.append('email', user.email);
 
-    // FormData 내용 확인을 위한 로깅
-    console.log('Email:', user.email);
-    console.log('Selected files:', selectedFiles);
-
     selectedFiles.forEach(file => {
       formData.append('upload_files', file);
-      console.log('Appending file:', file.name);
     });
-
-    // FormData 내용 확인
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
 
     try {
       const response = await axios({
@@ -67,9 +64,6 @@ export default function ChatHistory({
         message: `${result.total_files}개 파일 업로드 완료 (총 ${(result.total_size / 1024).toFixed(1)}KB)`
       });
       setSelectedFiles([]); // 업로드 성공 후 선택된 파일 목록 초기화
-      // 파일 입력 필드 초기화
-      const fileInput = document.getElementById('file-input');
-      if (fileInput) fileInput.value = '';
     } catch (error) {
       console.error('Upload error:', error);
       setUploadStatus({
@@ -143,11 +137,20 @@ export default function ChatHistory({
         {selectedFiles.length > 0 && (
           <div className="mb-4">
             <p className="text-sm font-medium text-gray-700 mb-2">선택된 파일 ({selectedFiles.length}개):</p>
-            <ul className="text-sm text-gray-600 space-y-1">
+            <ul className="text-sm text-gray-600 space-y-2">
               {selectedFiles.map((file, index) => (
-                <li key={index} className="flex justify-between">
-                  <span className="truncate">{file.name}</span>
-                  <span className="ml-2 text-gray-500">{formatFileSize(file.size)}</span>
+                <li key={index} className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200">
+                  <div className="flex-1 min-w-0 mr-2">
+                    <p className="truncate">{file.name}</p>
+                    <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveFile(index)}
+                    className="flex items-center justify-center p-1 hover:bg-gray-100 rounded-full text-gray-500 hover:text-red-600 transition-colors duration-200"
+                    title="파일 삭제"
+                  >
+                    <X size={16} />
+                  </button>
                 </li>
               ))}
             </ul>
