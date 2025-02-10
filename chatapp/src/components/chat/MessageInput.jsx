@@ -25,13 +25,11 @@ export default function MessageInput({ onSendMessage, isLoading }) {
         <button
           type="submit"
           className={`px-4 py-2 bg-blue-500 text-white rounded-lg transition-colors duration-200 ${
-            isLoading
-              ? 'opacity-50 cursor-not-allowed'
-              : 'hover:bg-blue-600'
+            isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-600"
           }`}
           disabled={isLoading}
         >
-          전송
+          질문하기
         </button>
       </div>
     </form>
