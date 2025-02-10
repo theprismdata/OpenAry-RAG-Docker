@@ -5,11 +5,13 @@ import { sendMessage, getSessionList } from "../../services/chatService";
 import ChatHistory from "./ChatHistory";
 import ChatMessage from "./ChatMessage";
 import MessageInput from "./MessageInput";
+import LoadingMessage from "./LoadingMessage";
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState([]);
   const [sessionId, setSessionId] = useState(0);
   const [sessions, setSessions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { user, token } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -26,6 +28,7 @@ export default function ChatWindow() {
   };
 
   const fetchSessionHistory = async (selectedSessionId) => {
+    setIsLoading(true);
     try {
       const response = await fetch("http://localhost:9000/chatapi/getasessionhistory", {
         method: "POST",
@@ -60,6 +63,8 @@ export default function ChatWindow() {
       setMessages(historyMessages);
     } catch (error) {
       console.error("Failed to fetch session history:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,7 +74,16 @@ export default function ChatWindow() {
   };
 
   const handleSendMessage = async (question) => {
+    setIsLoading(true);
     try {
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: "user",
+          content: question,
+        },
+      ]);
+
       const response = await sendMessage(
         {
           email: user.email,
@@ -82,10 +96,6 @@ export default function ChatWindow() {
 
       setMessages((prev) => [
         ...prev,
-        {
-          type: "user",
-          content: question,
-        },
         {
           type: "bot",
           content: response.answer,
@@ -100,6 +110,16 @@ export default function ChatWindow() {
       }
     } catch (error) {
       console.error("Failed to send message:", error);
+      // 에러 발생 시 에러 메시지를 채팅창에 표시
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: "bot",
+          content: "죄송합니다. 메시지 처리 중 오류가 발생했습니다. 다시 시도해 주세요.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -121,11 +141,12 @@ export default function ChatWindow() {
           {messages.map((message, index) => (
             <ChatMessage key={index} {...message} />
           ))}
+          {isLoading && <LoadingMessage />}
         </div>
 
         {/* 메시지 입력 영역 */}
         <div className="border-t border-gray-200">
-          <MessageInput onSendMessage={handleSendMessage} />
+          <MessageInput onSendMessage={handleSendMessage} isLoading={isLoading} />
         </div>
       </div>
     </div>
