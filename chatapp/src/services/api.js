@@ -5,10 +5,7 @@ export const api = {
   login: (credentials) => axios.post('/login', credentials),
   
   // Chat APIs
-  sendMessage: (data) => axios.post('/chatapi/rqa/', data),
-  getSessionList: (email) => axios.post('/chatapi/getsessionlist', { email }),
-  
-  // 기타 API 엔드포인트들을 여기에 추가
+  // sendMessage: (data) => axios.post('/rqa/', data),    
 };
 
 export default api;

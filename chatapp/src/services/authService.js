@@ -2,12 +2,22 @@
 import axios from '../utils/axios';
 
 export const loginUser = async (credentials) => {
-  const response = await axios.post('/login', credentials);
-  if (response.data.token) {
-    localStorage.setItem('token', response.data.token);
-    localStorage.setItem('user', JSON.stringify({ email: credentials.email }));
+  try {
+    //동작 확인됨.
+    console.log("Login process");
+    const response = await axios.post('/login', credentials);
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify({ email: credentials.email }));
+    }
+    return response.data;
+  } catch (error) {
+    // API 에러 처리
+    if (error.response) {
+      throw new Error(error.response.data.detail || 'Login failed');
+    }
+    throw new Error('Network error occurred');
   }
-  return response.data;
 };
 
 export const logout = () => {
@@ -17,6 +27,12 @@ export const logout = () => {
 
 export const getStoredAuth = () => {
   const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user'));
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem('user'));
+  } catch (e) {
+    // localStorage에 저장된 user 데이터가 유효하지 않을 경우
+    localStorage.removeItem('user');
+  }
   return { token, user };
 };

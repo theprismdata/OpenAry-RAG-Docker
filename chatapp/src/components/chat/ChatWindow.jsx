@@ -6,6 +6,7 @@ import ChatHistory from "./ChatHistory";
 import ChatMessage from "./ChatMessage";
 import MessageInput from "./MessageInput";
 import LoadingMessage from "./LoadingMessage";
+import axios from "../../utils/axios";
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState([]);
@@ -30,37 +31,27 @@ export default function ChatWindow() {
   const fetchSessionHistory = async (selectedSessionId) => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:9000/chatapi/getasessionhistory", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          email: user.email,
-          session: selectedSessionId,
-        }),
+      const response = await axios.post("/getasessionhistory", {
+        email: user.email,
+        session: selectedSessionId,
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch session history");
+      if (response.data) {
+        const historyMessages = response.data.history.flatMap((item) => [
+          {
+            type: "user",
+            content: item.question,
+          },
+          {
+            type: "bot",
+            content: item.answer,
+            sources: item.sourcelist,
+            searchResults: item.searchlist,
+          },
+        ]);
+
+        setMessages(historyMessages);
       }
-
-      const data = await response.json();
-      const historyMessages = data.history.flatMap((item) => [
-        {
-          type: "user",
-          content: item.question,
-        },
-        {
-          type: "bot",
-          content: item.answer,
-          sources: item.sourcelist,
-          searchResults: item.searchlist,
-        },
-      ]);
-
-      setMessages(historyMessages);
     } catch (error) {
       console.error("Failed to fetch session history:", error);
     } finally {
@@ -115,7 +106,8 @@ export default function ChatWindow() {
         ...prev,
         {
           type: "bot",
-          content: "죄송합니다. 메시지 처리 중 오류가 발생했습니다. 다시 시도해 주세요.",
+          content:
+            "죄송합니다. 메시지 처리 중 오류가 발생했습니다. 다시 시도해 주세요.",
         },
       ]);
     } finally {
@@ -146,7 +138,10 @@ export default function ChatWindow() {
 
         {/* 메시지 입력 영역 */}
         <div className="border-t border-gray-200">
-          <MessageInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+          <MessageInput
+            onSendMessage={handleSendMessage}
+            isLoading={isLoading}
+          />
         </div>
       </div>
     </div>

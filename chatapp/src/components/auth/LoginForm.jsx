@@ -5,10 +5,12 @@ const DeleteConfirmDialog = ({ isOpen, onClose, onConfirm, email }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">사용자 제거 확인</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          사용자 제거 확인
+        </h2>
         <p className="text-gray-600 mb-6">
-          정말로 사용자 '{email}'을(를) 제거하시겠습니까?
-          이 작업은 되돌릴 수 없습니다.
+          정말로 사용자 '{email}'을(를) 제거하시겠습니까? 이 작업은 되돌릴 수
+          없습니다.
         </p>
         <div className="flex justify-end space-x-4">
           <button
@@ -32,7 +34,7 @@ const DeleteConfirmDialog = ({ isOpen, onClose, onConfirm, email }) => {
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import axios from "../../utils/axios"; // localhost 에서는 동작함.
 import {
   loginUser,
   selectAuthError,
@@ -105,7 +107,7 @@ export default function LoginForm() {
   const handleAddUser = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:9001/mgmt/add_user", newUserData);
+      const response = await axios.post("/mgmt/add_user", newUserData);
 
       if (response.data.auth && response.data.status === "ok") {
         setAddUserMessage("사용자가 성공적으로 추가되었습니다.");
@@ -123,8 +125,8 @@ export default function LoginForm() {
 
   const handleDeleteUser = async () => {
     try {
-      const response = await axios.post("http://localhost:9001/mgmt/delete_user", deleteUserData);
-      
+      const response = await axios.post("/mgmt/delete_user", deleteUserData);
+
       if (response.data.status === "ok") {
         setDeleteUserMessage("사용자가 성공적으로 제거되었습니다.");
         setDeleteUserData({ email: "", passwd: "" });
@@ -336,10 +338,13 @@ export default function LoginForm() {
         )}
 
         {showDeleteUser && (
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            setShowDeleteConfirm(true);
-          }} className="mt-6 space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setShowDeleteConfirm(true);
+            }}
+            className="mt-6 space-y-6"
+          >
             <div className="space-y-5">
               <div>
                 <label
@@ -403,12 +408,16 @@ export default function LoginForm() {
 
         {/* 메시지 표시 */}
         {(addUserMessage || deleteUserMessage) && (
-          <div className={`mt-4 p-4 rounded-lg ${
-            (addUserMessage || deleteUserMessage).includes("성공")
-              ? "bg-green-50 border border-green-200 text-green-700"
-              : "bg-red-50 border border-red-200 text-red-700"
-          }`}>
-            <p className="text-sm font-medium">{addUserMessage || deleteUserMessage}</p>
+          <div
+            className={`mt-4 p-4 rounded-lg ${
+              (addUserMessage || deleteUserMessage).includes("성공")
+                ? "bg-green-50 border border-green-200 text-green-700"
+                : "bg-red-50 border border-red-200 text-red-700"
+            }`}
+          >
+            <p className="text-sm font-medium">
+              {addUserMessage || deleteUserMessage}
+            </p>
           </div>
         )}
         <DeleteConfirmDialog

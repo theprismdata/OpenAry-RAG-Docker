@@ -1,3 +1,3 @@
-docker build -t openarychat-app .
+docker build -t hongjoong/openarychat-app:0.0.1 .
 
-docker run -p 3000:3000 openarychat-app
+docker push hongjoong/openarychat-app:0.0.1

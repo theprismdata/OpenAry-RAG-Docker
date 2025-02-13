@@ -2,14 +2,15 @@
 import axios from '../utils/axios';
 
 export const sendMessage = async (messageData, token) => {
-  const response = await axios.post('/chatapi/rqa/', messageData, {
+  console.log(messageData)
+  const response = await axios.post('/rqa', messageData, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return response.data;
 };
 
 export const getSessionList = async (email, token) => {
-  const response = await axios.post('/chatapi/getsessionlist', { email }, {
+  const response = await axios.post('/getsessionlist', { email }, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return response.data;
