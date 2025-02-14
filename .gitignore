@@ -9,3 +9,5 @@ chatapp/node_modules
 chatapp/.idea
 config/svc-set-debug.yaml
 docker-compose-debug.yaml
+config/svc-set.dev.yaml
+chatapp/dist/

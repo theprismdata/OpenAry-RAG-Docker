@@ -11,13 +11,11 @@ export default defineConfig({
     allowedHosts: true,
     proxy: {
       '/chatapi-test': {
-        // target: 'http://opds-chatapi:9000',
-        target: 'http://localhost:9000', //for debug
+        target: 'http://opds-chatapi:9000',
         changeOrigin: true,
       },
       '/mgmt-test': { 
-        // target: 'http://opds-mgmt:9001',
-        target: 'http://localhost:9001', //for debug
+        target: 'http://opds-mgmt:9001',
         changeOrigin: true,
       }
       

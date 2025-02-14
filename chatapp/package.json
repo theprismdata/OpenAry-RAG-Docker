@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-  "build": "vite build",
-  "lint": "eslint .",
-  "preview": "vite preview",
-  "dev": "vite --host 0.0.0.0 --port 80"
+    "dev": "vite --config vite.config.dev.js --host localhost --port 3000",
+    "build": "vite build --config vite.config.prod.js",
+    "preview": "vite preview --config vite.config.prod.js --port 4173",
+    "start": "vite --config vite.config.prod.js --host 0.0.0.0 --port 80"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",

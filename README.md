@@ -50,6 +50,7 @@ langmodel:
 
 ```commandline
 docker-compose -f .\docker-compose.yaml up -d
+docker-compose -f .\docker-compose.web.dev.yaml up -d
 ```
 
 ```commandline

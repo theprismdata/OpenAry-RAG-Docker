@@ -34,7 +34,7 @@ const DeleteConfirmDialog = ({ isOpen, onClose, onConfirm, email }) => {
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "../../utils/axios"; // localhost 에서는 동작함.
+import axios_mgmt from "../../utils/axios_mgmt"; // localhost 에서는 동작함.
 import {
   loginUser,
   selectAuthError,
@@ -107,7 +107,7 @@ export default function LoginForm() {
   const handleAddUser = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/mgmt/add_user", newUserData);
+      const response = await axios_mgmt.post("/add_user", newUserData);
 
       if (response.data.auth && response.data.status === "ok") {
         setAddUserMessage("사용자가 성공적으로 추가되었습니다.");
@@ -125,7 +125,7 @@ export default function LoginForm() {
 
   const handleDeleteUser = async () => {
     try {
-      const response = await axios.post("/mgmt/delete_user", deleteUserData);
+      const response = await axios_mgmt.post("/delete_user", deleteUserData);
 
       if (response.data.status === "ok") {
         setDeleteUserMessage("사용자가 성공적으로 제거되었습니다.");
