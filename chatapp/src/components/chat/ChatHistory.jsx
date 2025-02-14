@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
 import axios from "axios";
@@ -16,6 +16,50 @@ export default function ChatHistory({
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // useEffect를 사용하여 문서 목록 가져오기
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      if (showDashboard) {
+        // 문서 목록이 선택된 경우에만 실행
+        setLoading(true);
+        setError(null);
+        try {
+          console.log(user.email);
+          console.log(token);
+          const response = await axios({
+            method: "post",
+            url: "/chatapi/getdocs/",
+            data: {
+              email: user.email, // Redux store에서 가져온 user email 사용
+            },
+            headers: {
+              Authorization: `Bearer ${token}`, // Redux store에서 가져온 token 사용
+              "Content-Type": "application/json",
+            },
+          });
+          const docs = response.data.file.map((fileObj) => {
+            const [filename, description] = Object.entries(fileObj)[0];
+            return {
+              filename,
+              description,
+            };
+          });
+          setDocuments(docs);
+        } catch (err) {
+          setError("문서 목록을 불러오는데 실패했습니다.");
+          console.error("Error fetching documents:", err);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchDocuments();
+  }, [showDashboard, user.email, token]); // 의존성 배열에 필요한 값들 추가
 
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files);
@@ -90,70 +134,132 @@ export default function ChatHistory({
 
   return (
     <div className="h-full bg-gray-50 flex flex-col">
-      {/* 문서 목록 및 채팅 히스토리 섹션 */}
-      <div className="flex-1 p-4 overflow-y-auto">
-        <div className="flex flex-col mb-4">
-          <div className="relative">
-            <select
-              value={showDashboard ? "docs" : "chat"}
-              onChange={(e) => onToggleDashboard(e.target.value === "docs")}
-              className="w-full p-3 text-lg font-bold bg-white border border-gray-200 rounded-lg appearance-none cursor-pointer hover:border-gray-300 focus:outline-none"
-            >
-              <option value="chat">채팅 히스토리</option>
-              <option value="docs">문서 목록</option>
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <svg
-                className="w-5 h-5 text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
+      {/* 상단 드롭다운 메뉴 */}
+      <div className="mb-3 p-4">
+        <div className="relative">
+          <select
+            value={showDashboard ? "docs" : "chat"}
+            onChange={(e) => onToggleDashboard(e.target.value === "docs")}
+            className="w-full p-3 text-lg font-bold bg-white border border-gray-200 rounded-lg appearance-none cursor-pointer hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="chat">채팅 히스토리</option>
+            <option value="docs">문서 목록</option>
+          </select>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            {showDashboard ? (
+              <FileText className="w-5 h-5 text-gray-500" />
+            ) : (
+              <MessageCircle className="w-5 h-5 text-gray-500" />
+            )}
           </div>
         </div>
+      </div>
 
-        <button
-          onClick={() => onSessionSelect(0)}
-          className="w-full text-left p-3 mb-4 rounded-lg flex items-center space-x-3 bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors duration-200"
-        >
-          <MessageCircle size={18} className="flex-shrink-0" />
-          <span className="font-medium">New Chat</span>
-        </button>
+      {/* 내용 영역 - 조건부 렌더링 */}
+      <div className="flex-1 p-4 overflow-y-auto">
+        {showDashboard ? (
+          <div className="space-y-4">
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              {loading ? (
+                <div className="flex items-center justify-center py-4">
+                  <svg
+                    className="animate-spin h-5 w-5 text-blue-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  <span className="ml-2">문서 목록을 불러오는 중...</span>
+                </div>
+              ) : error ? (
+                <div className="text-red-600 text-center py-4">{error}</div>
+              ) : (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                      총 {documents.length}개
+                    </span>
+                  </div>
+                  {documents.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">
+                      업로드된 문서가 없습니다.
+                    </p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {documents.map((doc, index) => (
+                        <li
+                          key={index}
+                          className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                        >
+                          <div className="flex items-center space-x-3 mb-2">
+                            <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                            <span className="font-medium text-gray-900 break-all">
+                              {doc.filename}
+                            </span>
+                          </div>
+                          {/* <p className="text-sm text-gray-600 ml-8 line-clamp-2">
+                            {doc.description}
+                          </p> */}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          // 채팅 히스토리 컴포넌트
+          <>
+            <button
+              onClick={() => onSessionSelect(0)}
+              className="w-full text-left p-3 mb-4 rounded-lg flex items-center space-x-3 bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors duration-200"
+            >
+              <MessageCircle size={18} className="flex-shrink-0" />
+              <span className="font-medium">New Chat</span>
+            </button>
 
-        <div className="space-y-2">
-          {sessions.map((session) => {
-            const [sessionId, title] = Object.entries(session)[0];
-            return (
-              <button
-                key={sessionId}
-                onClick={() => onSessionSelect(sessionId)}
-                className={`w-full text-left p-3 rounded-lg flex items-center space-x-3 ${
-                  currentSessionId === sessionId
-                    ? "bg-blue-100 text-blue-800"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                <MessageCircle
-                  size={18}
-                  className={`flex-shrink-0 ${
-                    currentSessionId === sessionId
-                      ? "text-blue-800"
-                      : "text-gray-500"
-                  }`}
-                />
-                <span className="truncate">{title}</span>
-              </button>
-            );
-          })}
-        </div>
+            <div className="space-y-2">
+              {sessions.map((session) => {
+                const [sessionId, title] = Object.entries(session)[0];
+                return (
+                  <button
+                    key={sessionId}
+                    onClick={() => onSessionSelect(sessionId)}
+                    className={`w-full text-left p-3 rounded-lg flex items-center space-x-3 ${
+                      currentSessionId === sessionId
+                        ? "bg-blue-100 text-blue-800"
+                        : "hover:bg-gray-100"
+                    }`}
+                  >
+                    <MessageCircle
+                      size={18}
+                      className={`flex-shrink-0 ${
+                        currentSessionId === sessionId
+                          ? "text-blue-800"
+                          : "text-gray-500"
+                      }`}
+                    />
+                    <span className="truncate">{title}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       {/* 파일 업로드 섹션 */}
