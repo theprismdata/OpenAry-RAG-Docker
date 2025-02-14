@@ -50,7 +50,13 @@ langmodel:
 
 ```commandline
 docker-compose -f .\docker-compose.yaml up -d
+```
+
+```
+debug시
 docker-compose -f .\docker-compose.web.dev.yaml up -d
+
+nginx.exe  -c E:\\1.1.nginx\\conf\\nginx.conf -p E:\\1.1.nginx
 ```
 
 ```commandline
