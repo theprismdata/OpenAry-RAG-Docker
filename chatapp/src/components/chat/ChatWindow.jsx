@@ -6,6 +6,7 @@ import ChatHistory from "./ChatHistory";
 import ChatMessage from "./ChatMessage";
 import MessageInput from "./MessageInput";
 import LoadingMessage from "./LoadingMessage";
+import FileDashboard from "../../components/dashboard/FileDashboard";
 import axios from "../../utils/axios";
 
 export default function ChatWindow() {
@@ -13,6 +14,7 @@ export default function ChatWindow() {
   const [sessionId, setSessionId] = useState(0);
   const [sessions, setSessions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
   const { user, token } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -123,26 +125,34 @@ export default function ChatWindow() {
           sessions={sessions}
           onSessionSelect={handleSessionSelect}
           currentSessionId={sessionId}
+          onToggleDashboard={() => setShowDashboard(!showDashboard)}
+          showDashboard={showDashboard}
         />
       </div>
 
-      {/* 오른쪽 채팅 영역 */}
+      {/* 오른쪽 영역 - 채팅 또는 대시보드 */}
       <div className="flex-1 flex flex-col h-full">
-        {/* 메시지 표시 영역 */}
-        <div className="flex-1 overflow-y-auto p-4 bg-white">
-          {messages.map((message, index) => (
-            <ChatMessage key={index} {...message} />
-          ))}
-          {isLoading && <LoadingMessage />}
-        </div>
+        {showDashboard ? (
+          <FileDashboard />
+        ) : (
+          <>
+            {/* 메시지 표시 영역 */}
+            <div className="flex-1 overflow-y-auto p-4 bg-white">
+              {messages.map((message, index) => (
+                <ChatMessage key={index} {...message} />
+              ))}
+              {isLoading && <LoadingMessage />}
+            </div>
 
-        {/* 메시지 입력 영역 */}
-        <div className="border-t border-gray-200">
-          <MessageInput
-            onSendMessage={handleSendMessage}
-            isLoading={isLoading}
-          />
-        </div>
+            {/* 메시지 입력 영역 */}
+            <div className="border-t border-gray-200">
+              <MessageInput
+                onSendMessage={handleSendMessage}
+                isLoading={isLoading}
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
