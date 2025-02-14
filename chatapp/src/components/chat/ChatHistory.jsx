@@ -1,14 +1,15 @@
-// src/components/chat/ChatHistory.jsx
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
 import axios from "axios";
-import { X, MessageCircle } from "lucide-react";
+import { X, MessageCircle, FileText } from "lucide-react";
 
 export default function ChatHistory({
   sessions,
   onSessionSelect,
   currentSessionId,
+  onToggleDashboard,
+  showDashboard,
 }) {
   const dispatch = useDispatch();
   const { user, token } = useSelector((state) => state.auth);
@@ -20,7 +21,6 @@ export default function ChatHistory({
     const files = Array.from(event.target.files);
     setSelectedFiles((prev) => [...prev, ...files]);
     setUploadStatus(null);
-    // 파일 입력 필드 초기화 (같은 파일을 다시 선택할 수 있도록)
     event.target.value = "";
   };
 
@@ -90,9 +90,36 @@ export default function ChatHistory({
 
   return (
     <div className="h-full bg-gray-50 flex flex-col">
-      {/* 채팅 히스토리 섹션 */}
+      {/* 문서 목록 및 채팅 히스토리 섹션 */}
       <div className="flex-1 p-4 overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">채팅 히스토리</h2>
+        <div className="flex flex-col mb-4">
+          <div className="relative">
+            <select
+              value={showDashboard ? "docs" : "chat"}
+              onChange={(e) => onToggleDashboard(e.target.value === "docs")}
+              className="w-full p-3 text-lg font-bold bg-white border border-gray-200 rounded-lg appearance-none cursor-pointer hover:border-gray-300 focus:outline-none"
+            >
+              <option value="chat">채팅 히스토리</option>
+              <option value="docs">문서 목록</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg
+                className="w-5 h-5 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+
         <button
           onClick={() => onSessionSelect(0)}
           className="w-full text-left p-3 mb-4 rounded-lg flex items-center space-x-3 bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors duration-200"
@@ -100,6 +127,7 @@ export default function ChatHistory({
           <MessageCircle size={18} className="flex-shrink-0" />
           <span className="font-medium">New Chat</span>
         </button>
+
         <div className="space-y-2">
           {sessions.map((session) => {
             const [sessionId, title] = Object.entries(session)[0];
