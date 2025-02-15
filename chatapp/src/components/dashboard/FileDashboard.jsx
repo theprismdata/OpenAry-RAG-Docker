@@ -79,11 +79,11 @@ export default function FileDashboard() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 h-screen">
       <h1 className="text-2xl font-bold mb-6">문서 분석 요약</h1>
-      <div className="overflow-x-auto">
+      <div className="h-[calc(100vh-120px)] overflow-y-auto overflow-x-auto">
         <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 sticky top-0">
             <tr>
               <th
                 className="relative px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"

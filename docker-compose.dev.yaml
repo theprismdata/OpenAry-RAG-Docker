@@ -1,21 +1,18 @@
 #version: '3.8'
 
 services:
-  # openarychat-app:
-  #   image: hongjoong/openarychat-app:0.0.1
-  #   container_name: openarychat-app
-  #   ports:
-  #     - "80:80"      # Nginx port
-  #     - "3000:3000"  # React app port 추가 필요
-  #   volumes:
-  #     - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
-  #     - ./chatapp/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  #   restart: always
-  #   depends_on:
-  #     - opds-chatapi
-  #     - opds-mgmt    
-  #   networks:
-  #     - openary_network
+  openarychat-app:
+    image: hongjoong/openarychat-app:0.0.1
+    container_name: openarychat-app
+    ports:
+      - "80:80"
+    volumes:
+      - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
+    restart: always
+    depends_on:
+      - redis-stack
+    networks:
+      - openary_network
 
   opds-streamlit:
     image: hongjoong/openary-streamlit:0.0.1

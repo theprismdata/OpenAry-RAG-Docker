@@ -4,10 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+<<<<<<< HEAD
     "dev": "vite --config vite.config.dev.js --host localhost --port 3000",
     "build": "vite build --config vite.config.prod.js",
     "preview": "vite preview --config vite.config.prod.js --port 4173",
     "start": "vite --config vite.config.prod.js --host 0.0.0.0 --port 3000"
+=======
+    "dev": "set NODE_ENV=development && vite --port 3000",
+    "build": "set NODE_ENV=production && vite build"
+>>>>>>> feature/docdashboard
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",
