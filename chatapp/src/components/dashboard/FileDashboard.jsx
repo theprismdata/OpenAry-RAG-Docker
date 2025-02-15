@@ -1,7 +1,7 @@
 // src/components/dashboard/FileDashboard.jsx
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import axios from "../../utils/axios";
+import axios from "../../utils/axios_chatapi";
 
 export default function FileDashboard() {
   const [files, setFiles] = useState([]);

@@ -8,11 +8,11 @@ export default defineConfig({
     port: 3000,
     allowedHosts: true,
     proxy: {
-      '/chatapi-test': {
+      '/chatapi': {
         target: 'http://localhost:9000', 
         changeOrigin: true,
       },
-      '/mgmt-test': { 
+      '/mgmt': { 
         target: 'http://localhost:9001', 
         changeOrigin: true,
       }
