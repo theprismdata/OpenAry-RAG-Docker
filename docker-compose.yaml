@@ -12,7 +12,7 @@ services:
     restart: always
     depends_on:
       - opds-chatapi
-      - opds-mgmt    
+      - opds-mgmt 
     networks:
       - openary_network
       
