@@ -7,7 +7,7 @@ import ChatMessage from "./ChatMessage";
 import MessageInput from "./MessageInput";
 import LoadingMessage from "./LoadingMessage";
 import FileDashboard from "../../components/dashboard/FileDashboard";
-import axios from "../../utils/axios";
+import axios from "../../utils/axios_chatapi";
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState([]);

@@ -1,5 +1,5 @@
 // src/services/chatService.js
-import axios from '../utils/axios';
+import axios from '../utils/axios_chatapi';
 
 export const sendMessage = async (messageData, token) => {
   console.log(messageData)
