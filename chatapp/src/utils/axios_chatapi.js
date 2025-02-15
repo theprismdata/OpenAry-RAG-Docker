@@ -6,8 +6,8 @@ console.log(isDevelopment);
 
 const instance = axios.create({
   baseURL: isDevelopment 
-    ? 'http://localhost:9000/chatapi'  // 개발 환경
-    : '/chatapi',                      // 운영 환경 (nginx proxy 사용)
+    ? 'http://localhost:9001/mgmt'  // 개발 환경
+    : '/mgmt',                      // 운영 환경 (nginx proxy 사용)
   headers: {
     'Content-Type': 'application/json',
   },
