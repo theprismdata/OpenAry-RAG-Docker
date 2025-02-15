@@ -18,12 +18,29 @@ export default function ChatWindow() {
   const { user, token } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    fetchSessionList();
+    const fetchSessions = async () => {
+      try {
+        console.log(
+          "Fetching sessions with token:",
+          token ? "Token exists" : "No token"
+        );
+        console.log("User email:", user.email);
+        await fetchSessionList();
+      } catch (error) {
+        console.error("Session fetch error:", error);
+      }
+    };
+
+    fetchSessions();
   }, []);
 
   const fetchSessionList = async () => {
     try {
+      console.log("call getSessionList");
+      console.log(user.email);
+      console.log(token);
       const response = await getSessionList(user.email, token);
+      console.log(response.session_list);
       setSessions(response.session_list);
     } catch (error) {
       console.error("Failed to fetch sessions:", error);
@@ -99,11 +116,16 @@ export default function ChatWindow() {
 
       if (sessionId === 0) {
         setSessionId(response.chat_session);
-        fetchSessionList();
+        // 새 세션이 생성된 경우, sessions 상태를 직접 업데이트
+        setSessions((prev) => [
+          {
+            [response.chat_session]: question.substring(0, 30) + "...", // 첫 질문을 세션 제목으로
+          },
+          ...prev,
+        ]);
       }
     } catch (error) {
       console.error("Failed to send message:", error);
-      // 에러 발생 시 에러 메시지를 채팅창에 표시
       setMessages((prev) => [
         ...prev,
         {
