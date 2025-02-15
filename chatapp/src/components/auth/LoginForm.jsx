@@ -34,7 +34,8 @@ const DeleteConfirmDialog = ({ isOpen, onClose, onConfirm, email }) => {
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios_mgmt from "../../utils/axios_chatapi"; // localhost 에서는 동작함.
+import axios_chatapi from "../../utils/axios_chatapi"; // localhost 에서는 동작함.
+import axios_mgmt from "../../utils/axios_mgmt"; // localhost 에서는 동작함.
 import {
   loginUser,
   selectAuthError,
