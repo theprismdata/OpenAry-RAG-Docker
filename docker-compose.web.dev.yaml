@@ -3,9 +3,9 @@
 services:
   openarychat-app:
     image: hongjoong/openarychat-app:0.0.1
-    container_name: opds-streamlit
+    container_name: openarychat-app
     ports:
-      - "3000:80"
+      - "80:80"
     volumes:
       - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
     restart: always
