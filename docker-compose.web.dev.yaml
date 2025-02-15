@@ -1,7 +1,19 @@
 #version: '3.8'
 
 services:
-      
+  openarychat-app:
+    image: hongjoong/openarychat-app:0.0.1
+    container_name: opds-streamlit
+    ports:
+      - "3000:80"
+    volumes:
+      - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
+    restart: always
+    depends_on:
+      - redis-stack
+    networks:
+      - openary_network
+
   opds-streamlit:
     image: hongjoong/openary-streamlit:0.0.1
     container_name: opds-streamlit
