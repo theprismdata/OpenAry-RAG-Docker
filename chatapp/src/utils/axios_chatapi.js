@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+const isDevelopment = import.meta.env.DEV; // Vite에서 제공하는 환경 변수
+console.log("isDev");
+console.log(isDevelopment);
+
 const instance = axios.create({
-  baseURL: '/chatapi', 
+  baseURL: isDevelopment 
+    ? 'http://localhost:9000/chatapi'  // 개발 환경
+    : '/chatapi',                      // 운영 환경 (nginx proxy 사용)
   headers: {
     'Content-Type': 'application/json',
   },
