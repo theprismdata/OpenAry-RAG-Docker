@@ -1,5 +1,5 @@
 // src/services/authService.js
-import axios from '../utils/axios';
+import axios from '../utils/axios_chatapi';
 
 export const loginUser = async (credentials) => {
   try {

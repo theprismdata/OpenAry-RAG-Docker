@@ -52,6 +52,13 @@ langmodel:
 docker-compose -f .\docker-compose.yaml up -d
 ```
 
+```
+debug시
+docker-compose -f .\docker-compose.web.dev.yaml up -d
+
+.\nginx.exe  -c E:\\1.1.nginx\\conf\\nginx.conf -p E:\\1.1.nginx
+```
+
 ```commandline
 문서 임베딩, LLM과의 대화는 ollama gemma2 컨테이너에서 수행해 줍니다
 ```
