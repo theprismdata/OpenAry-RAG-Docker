@@ -1,25 +1,6 @@
 #version: '3.8'
 
 services:
-<<<<<<< HEAD:docker-compose.web.dev.yaml
-  # openarychat-app:
-  #   image: hongjoong/openarychat-app:0.0.1
-  #   container_name: openarychat-app
-  #   ports:
-  #     - "80:80"      # Nginx port
-  #     - "3000:3000"  # React app port 추가 필요
-  #   volumes:
-  #     - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
-  #     - ./chatapp/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  #   restart: always
-  #   depends_on:
-  #     - opds-chatapi
-  #     - opds-mgmt    
-  #   networks:
-  #     - openary_network
-
-=======
->>>>>>> feature/docdashboard:docker-compose.dev.noweb.yaml
   opds-streamlit:
     image: hongjoong/openary-streamlit:0.0.1
     container_name: opds-streamlit
