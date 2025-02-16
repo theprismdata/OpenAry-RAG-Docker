@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
-import axios from "axios";
+import axios from "../../utils/axios_chatapi";
 import { X, MessageCircle, FileText } from "lucide-react";
 
 export default function ChatHistory({
@@ -20,35 +20,24 @@ export default function ChatHistory({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // useEffect를 사용하여 문서 목록 가져오기
   useEffect(() => {
     const fetchDocuments = async () => {
       if (showDashboard) {
-        // 문서 목록이 선택된 경우에만 실행
         setLoading(true);
         setError(null);
         try {
-          console.log(user.email);
-          console.log(token);
-          const response = await axios({
-            method: "post",
-            url: "/chatapi/getdocs/",
-            data: {
-              email: user.email, // Redux store에서 가져온 user email 사용
+          const response = await axios.post(
+            "/getdocs",
+            {
+              email: user.email,
             },
-            headers: {
-              Authorization: `Bearer ${token}`, // Redux store에서 가져온 token 사용
-              "Content-Type": "application/json",
-            },
-          });
-          const docs = response.data.file.map((fileObj) => {
-            const [filename, description] = Object.entries(fileObj)[0];
-            return {
-              filename,
-              description,
-            };
-          });
-          setDocuments(docs);
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setDocuments(response.data.fileinfo || []);
         } catch (err) {
           setError("문서 목록을 불러오는데 실패했습니다.");
           console.error("Error fetching documents:", err);
@@ -59,7 +48,7 @@ export default function ChatHistory({
     };
 
     fetchDocuments();
-  }, [showDashboard, user.email, token]); // 의존성 배열에 필요한 값들 추가
+  }, [showDashboard, user.email, token]);
 
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files);
@@ -96,7 +85,7 @@ export default function ChatHistory({
     try {
       const response = await axios({
         method: "post",
-        url: "/chatapi/files/upload/",
+        url: "/files/upload/",
         data: formData,
         headers: {
           "Content-Type": "multipart/form-data",
@@ -111,7 +100,7 @@ export default function ChatHistory({
           result.total_size / 1024
         ).toFixed(1)}KB)`,
       });
-      setSelectedFiles([]); // 업로드 성공 후 선택된 파일 목록 초기화
+      setSelectedFiles([]);
     } catch (error) {
       console.error("Upload error:", error);
       setUploadStatus({
@@ -120,12 +109,10 @@ export default function ChatHistory({
       });
     } finally {
       setUploading(false);
-      // 5초 후 상태 메시지 제거
       setTimeout(() => setUploadStatus(null), 5000);
     }
   };
 
-  // 파일 크기를 보기 좋게 변환하는 함수
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
@@ -134,7 +121,6 @@ export default function ChatHistory({
 
   return (
     <div className="h-full bg-gray-50 flex flex-col">
-      {/* 상단 드롭다운 메뉴 */}
       <div className="mb-3 p-4">
         <div className="relative">
           <select
@@ -155,7 +141,6 @@ export default function ChatHistory({
         </div>
       </div>
 
-      {/* 내용 영역 - 조건부 렌더링 */}
       <div className="flex-1 p-4 overflow-y-auto">
         {showDashboard ? (
           <div className="space-y-4">
@@ -198,21 +183,16 @@ export default function ChatHistory({
                       업로드된 문서가 없습니다.
                     </p>
                   ) : (
-                    <ul className="space-y-3">
+                    <ul className="space-y-2">
                       {documents.map((doc, index) => (
                         <li
                           key={index}
-                          className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                          className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
                         >
-                          <div className="flex items-center space-x-3 mb-2">
-                            <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                            <span className="font-medium text-gray-900 break-all">
-                              {doc.filename}
-                            </span>
-                          </div>
-                          {/* <p className="text-sm text-gray-600 ml-8 line-clamp-2">
-                            {doc.description}
-                          </p> */}
+                          <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                          <span className="text-sm text-gray-900 truncate">
+                            {doc.filename}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -222,7 +202,6 @@ export default function ChatHistory({
             </div>
           </div>
         ) : (
-          // 채팅 히스토리 컴포넌트
           <>
             <button
               onClick={() => onSessionSelect(0)}
@@ -262,7 +241,6 @@ export default function ChatHistory({
         )}
       </div>
 
-      {/* 파일 업로드 섹션 */}
       <div className="border-t border-gray-200 p-4">
         <div className="mb-4">
           <label className="block">
@@ -286,7 +264,6 @@ export default function ChatHistory({
           </label>
         </div>
 
-        {/* 선택된 파일 목록 */}
         {selectedFiles.length > 0 && (
           <div className="mb-4">
             <p className="text-sm font-medium text-gray-700 mb-2">
@@ -317,7 +294,6 @@ export default function ChatHistory({
           </div>
         )}
 
-        {/* 전송 버튼 */}
         <button
           onClick={handleUpload}
           disabled={uploading || selectedFiles.length === 0}
@@ -358,7 +334,6 @@ export default function ChatHistory({
           )}
         </button>
 
-        {/* 업로드 상태 메시지 */}
         {uploadStatus && (
           <div
             className={`mt-4 p-3 rounded-lg text-sm ${
@@ -372,7 +347,6 @@ export default function ChatHistory({
         )}
       </div>
 
-      {/* 사용자 정보 및 로그아웃 섹션 */}
       <div className="border-t border-gray-200 p-4 bg-gray-50">
         <div className="mb-3">
           <p className="text-sm text-gray-600">로그인 사용자:</p>
@@ -387,4 +361,4 @@ export default function ChatHistory({
       </div>
     </div>
   );
-}
+  }
