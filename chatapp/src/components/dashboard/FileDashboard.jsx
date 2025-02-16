@@ -1,4 +1,3 @@
-// src/components/dashboard/FileDashboard.jsx
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "../../utils/axios_chatapi";
@@ -7,8 +6,10 @@ export default function FileDashboard() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [columnWidths, setColumnWidths] = useState({
-    fileName: 400, // 초기 너비
-    summary: 600, // 초기 너비
+    fileName: 300,
+    summary: 500,
+    extPageRate: 100,
+    embeddingRate: 100,
   });
   const [resizing, setResizing] = useState(null);
   const { user, token } = useSelector((state) => state.auth);
@@ -31,12 +32,7 @@ export default function FileDashboard() {
         }
       );
 
-      const formattedFiles = response.data.file.map((fileObj) => {
-        const [fileName, summary] = Object.entries(fileObj)[0];
-        return { fileName, summary };
-      });
-
-      setFiles(formattedFiles);
+      setFiles(response.data.fileinfo || []);
     } catch (error) {
       console.error("Failed to fetch files:", error);
     } finally {
@@ -55,7 +51,7 @@ export default function FileDashboard() {
         const diff = moveEvent.pageX - startX;
         setColumnWidths((prev) => ({
           ...prev,
-          [column]: Math.max(100, startWidth + diff), // 최소 너비 100px
+          [column]: Math.max(100, startWidth + diff),
         }));
       }
     };
@@ -80,7 +76,7 @@ export default function FileDashboard() {
 
   return (
     <div className="p-6 h-screen">
-      <h1 className="text-2xl font-bold mb-6">문서 분석 요약</h1>
+      <h1 className="text-2xl font-bold mb-6">문서 목록</h1>
       <div className="h-[calc(100vh-120px)] overflow-y-auto overflow-x-auto">
         <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
           <thead className="bg-gray-50 sticky top-0">
@@ -105,6 +101,26 @@ export default function FileDashboard() {
                   onMouseDown={(e) => handleMouseDown(e, "summary")}
                 />
               </th>
+              <th
+                className="relative px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                style={{ width: columnWidths.extPageRate }}
+              >
+                추출률
+                <div
+                  className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-500 active:bg-blue-700"
+                  onMouseDown={(e) => handleMouseDown(e, "extPageRate")}
+                />
+              </th>
+              <th
+                className="relative px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                style={{ width: columnWidths.embeddingRate }}
+              >
+                임베딩률
+                <div
+                  className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-500 active:bg-blue-700"
+                  onMouseDown={(e) => handleMouseDown(e, "embeddingRate")}
+                />
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -117,7 +133,7 @@ export default function FileDashboard() {
                     maxWidth: columnWidths.fileName,
                   }}
                 >
-                  {file.fileName}
+                  {file.filename}
                 </td>
                 <td
                   className="px-6 py-4 text-sm text-gray-500"
@@ -127,6 +143,24 @@ export default function FileDashboard() {
                   }}
                 >
                   {file.summary}
+                </td>
+                <td
+                  className="px-6 py-4 text-sm text-gray-500 text-center"
+                  style={{
+                    width: columnWidths.extPageRate,
+                    maxWidth: columnWidths.extPageRate,
+                  }}
+                >
+                  {file.ext_page_rate}%
+                </td>
+                <td
+                  className="px-6 py-4 text-sm text-gray-500 text-center"
+                  style={{
+                    width: columnWidths.embeddingRate,
+                    maxWidth: columnWidths.embeddingRate,
+                  }}
+                >
+                  {file.embedding_rate}%
                 </td>
               </tr>
             ))}
