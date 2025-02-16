@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "set NODE_ENV=development && vite --port 3000",
-    "build": "set NODE_ENV=production && vite build"
+    "dev": "NODE_ENV=development vite --host 0.0.0.0 --port 3000",
+    "build": "NODE_ENV=production vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 3000"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",

@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const isDevelopment = import.meta.env.DEV; // Vite에서 제공하는 환경 변수
-console.log("isDev");
-console.log(isDevelopment);
+console.log("axios_chatapi: isDev");
+console.log("axios_chatapi: ", isDevelopment);
 
 const instance = axios.create({
   baseURL: isDevelopment 
