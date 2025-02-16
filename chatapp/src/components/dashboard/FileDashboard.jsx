@@ -76,8 +76,8 @@ export default function FileDashboard() {
 
   return (
     <div className="p-6 h-screen">
-      <h1 className="text-2xl font-bold mb-6">문서 목록</h1>
-      <div className="h-[calc(100vh-120px)] overflow-y-auto overflow-x-auto">
+      <h1 className="text-2xl font-bold mb-6">문서 처리 진행률</h1>
+      <div className="h-[calc(100vh-120px)] overflow-y-auto overflow-x-auto pb-10">
         <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
           <thead className="bg-gray-50 sticky top-0">
             <tr>
