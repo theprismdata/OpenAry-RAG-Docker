@@ -52,20 +52,14 @@ langmodel:
 docker-compose -f .\docker-compose.yaml up -d
 ```
 
-```
+````
 debug시
 docker-compose -f .\docker-compose.web.dev.yaml up -d
-
-<<<<<<< HEAD
-.\nginx.exe  -c E:\\1.1.nginx\\conf\\nginx.conf -p E:\\1.1.nginx
-=======
-.\nginx.exe  -c E:\\1.Developing\\github_open\\OpenAry-RAG-Docker\\chatapp\\nginx\\nginx.dev.conf -p E:\\1.1.nginx
->>>>>>> feature/docdashboard
-```
+docker-compose -f .\docker-compose.dev.yaml up -d
 
 ```commandline
 문서 임베딩, LLM과의 대화는 ollama gemma2 컨테이너에서 수행해 줍니다
-```
+````
 
 주요 서비스 주소
 

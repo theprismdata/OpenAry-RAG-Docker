@@ -1,11 +1,15 @@
 import axios from 'axios';
 
+const isDevelopment = import.meta.env.DEV; // Vite에서 제공하는 환경 변수
 const instance = axios.create({
-  baseURL: '/mgmt', 
+  baseURL: isDevelopment 
+    ? 'http://localhost:9001/mgmt'  // 개발 환경
+    : '/mgmt',                      // 운영 환경 (nginx proxy 사용)
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
 
 // 요청 인터셉터 - 토큰 추가
 instance.interceptors.request.use(
@@ -17,19 +21,6 @@ instance.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// 응답 인터셉터 - 에러 처리
-instance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
     return Promise.reject(error);
   }
 );

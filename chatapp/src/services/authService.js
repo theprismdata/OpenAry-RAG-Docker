@@ -4,7 +4,8 @@ import axios from '../utils/axios_chatapi';
 export const loginUser = async (credentials) => {
   try {
     //동작 확인됨.
-    console.log("Login process");
+    console.log("authService: Login process");
+    console.log("authService: baseURL", axios.defaults.baseURL);
     const response = await axios.post('/login', credentials);
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
