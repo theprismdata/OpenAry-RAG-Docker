@@ -53,8 +53,13 @@ docker-compose -f .\docker-compose.yaml up -d
 ```
 
 ````
-debug시
-docker-compose -f .\docker-compose.web.dev.yaml up -d
+WEB 디버그용
+docker-compose -f .\docker-compose.dev.noweb.yaml up -d
+
+CHATAPI 디버그용
+docker-compose -f .\docker-compose.dev.nochatapi up -d
+
+전체 디버깅용 (개발 설정 포함)
 docker-compose -f .\docker-compose.dev.yaml up -d
 
 ```commandline
