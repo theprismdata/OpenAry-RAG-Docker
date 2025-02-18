@@ -47,11 +47,13 @@ export default function LoginForm() {
     email: "",
     password: "",
   });
+  const [passwordError, setPasswordError] = useState(""); // 비밀번호 에러 메시지
   const [showAddUser, setShowAddUser] = useState(false);
   const [showDeleteUser, setShowDeleteUser] = useState(false);
   const [newUserData, setNewUserData] = useState({
     email: "",
     new_passwd: "",
+    confirmPassword: "", // 새로 추가된 필드
   });
   const [deleteUserData, setDeleteUserData] = useState({
     email: "",
@@ -83,6 +85,8 @@ export default function LoginForm() {
       ...prev,
       [name === "password" ? "new_passwd" : name]: value,
     }));
+    // 비밀번호 에러 메시지 초기화
+    setPasswordError("");
   };
 
   const handleDeleteUserChange = (e) => {
@@ -107,12 +111,22 @@ export default function LoginForm() {
 
   const handleAddUser = async (e) => {
     e.preventDefault();
+
+    // 비밀번호 일치 여부 확인
+    if (newUserData.new_passwd !== newUserData.confirmPassword) {
+      setPasswordError("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
     try {
-      const response = await axios_mgmt.post("/add_user", newUserData);
+      const response = await axios_mgmt.post("/add_user", {
+        email: newUserData.email,
+        new_passwd: newUserData.new_passwd,
+      });
 
       if (response.data.auth && response.data.status === "ok") {
         setAddUserMessage("사용자가 성공적으로 추가되었습니다.");
-        setNewUserData({ email: "", new_passwd: "" });
+        setNewUserData({ email: "", new_passwd: "", confirmPassword: "" });
         setTimeout(() => {
           setAddUserMessage("");
           setShowAddUser(false);
@@ -316,6 +330,31 @@ export default function LoginForm() {
                   placeholder="새 비밀번호"
                 />
               </div>
+
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  비밀번호 확인
+                </label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  value={newUserData.confirmPassword}
+                  onChange={handleNewUserChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
+                  placeholder="비밀번호 확인"
+                />
+              </div>
+
+              {passwordError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">
+                  <p className="text-sm font-medium">{passwordError}</p>
+                </div>
+              )}
             </div>
 
             <div className="flex space-x-4">
