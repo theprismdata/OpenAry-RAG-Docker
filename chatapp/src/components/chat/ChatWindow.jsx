@@ -14,7 +14,10 @@ export default function ChatWindow() {
   const [sessionId, setSessionId] = useState(0);
   const [sessions, setSessions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showDashboard, setShowDashboard] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(() => {
+    const saved = sessionStorage.getItem("dashboardView");
+    return saved ? JSON.parse(saved) : false;
+  });
   const { user, token } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -83,6 +86,11 @@ export default function ChatWindow() {
     fetchSessionHistory(selectedSessionId);
   };
 
+  const handleToggleDashboard = (isDocs) => {
+    sessionStorage.setItem("dashboardView", JSON.stringify(isDocs));
+    setShowDashboard(isDocs);
+  };
+
   const handleSendMessage = async (question) => {
     setIsLoading(true);
     try {
@@ -116,10 +124,9 @@ export default function ChatWindow() {
 
       if (sessionId === 0) {
         setSessionId(response.chat_session);
-        // 새 세션이 생성된 경우, sessions 상태를 직접 업데이트
         setSessions((prev) => [
           {
-            [response.chat_session]: question.substring(0, 30) + "...", // 첫 질문을 세션 제목으로
+            [response.chat_session]: question.substring(0, 30) + "...",
           },
           ...prev,
         ]);
@@ -141,24 +148,21 @@ export default function ChatWindow() {
 
   return (
     <div className="flex h-full">
-      {/* 왼쪽 사이드바 - 채팅 히스토리 */}
       <div className="w-1/4 h-full border-r border-gray-200">
         <ChatHistory
           sessions={sessions}
           onSessionSelect={handleSessionSelect}
           currentSessionId={sessionId}
-          onToggleDashboard={() => setShowDashboard(!showDashboard)}
+          onToggleDashboard={handleToggleDashboard}
           showDashboard={showDashboard}
         />
       </div>
 
-      {/* 오른쪽 영역 - 채팅 또는 대시보드 */}
       <div className="flex-1 flex flex-col h-full">
         {showDashboard ? (
           <FileDashboard />
         ) : (
           <>
-            {/* 메시지 표시 영역 */}
             <div className="flex-1 overflow-y-auto p-4 bg-white">
               {messages.map((message, index) => (
                 <ChatMessage key={index} {...message} />
@@ -166,7 +170,6 @@ export default function ChatWindow() {
               {isLoading && <LoadingMessage />}
             </div>
 
-            {/* 메시지 입력 영역 */}
             <div className="border-t border-gray-200">
               <MessageInput
                 onSendMessage={handleSendMessage}

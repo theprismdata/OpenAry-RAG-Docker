@@ -353,7 +353,10 @@ export default function ChatHistory({
           <p className="text-sm font-medium text-gray-800">{user?.email}</p>
         </div>
         <button
-          onClick={() => dispatch(logout())}
+          onClick={() => {
+            sessionStorage.removeItem("dashboardView");
+            dispatch(logout());
+          }}
           className="w-full py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
         >
           로그아웃
@@ -361,4 +364,4 @@ export default function ChatHistory({
       </div>
     </div>
   );
-  }
+}
