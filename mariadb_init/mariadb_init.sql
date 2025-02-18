@@ -23,5 +23,7 @@ CREATE TABLE `tb_llm_doc` (
   `process_end` datetime DEFAULT NULL COMMENT '처리종료일시',
   `etc` varchar(256) DEFAULT NULL COMMENT '기타정보',
   `userid` varchar(256) DEFAULT NULL COMMENT 'userid',
+  `extract_page_rate` float DEFAULT NULL COMMENT '문서 추출 진행률',
+  `embedding_rate` float DEFAULT NULL COMMENT '문서 임베딩 진행률',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6477 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='문서관리';

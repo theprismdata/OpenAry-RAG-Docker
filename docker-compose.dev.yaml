@@ -2,7 +2,7 @@
 
 services:
   nginx:
-    image: nginx:alpine
+    image: hongjoong/opds-nginx:0.0.1
     ports:
       - "80:80"
     volumes:
@@ -184,7 +184,7 @@ services:
     networks:
       - openary_network
 
-  postgres:
+  postgres: #데이터블은 opds-mgmt에서 생성함. 
     image: ankane/pgvector:latest
     container_name: pgvector
     environment:

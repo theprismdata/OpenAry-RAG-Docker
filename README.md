@@ -14,10 +14,6 @@
 
 ![docker-resource.png](features/docker-resource.png)
 
-### 예제 화면 이에요.
-
-![openary-streamlit-chat.png](features/openary-streamlit-chat.png)
-
 ## 이렇게 동작 시키면 되요
 
 #### 이 레파지토리를 다운로드 받으세요
@@ -42,6 +38,10 @@ langmodel:
   ollama:
     address: "http://ollama:11434"
     chat_model: "gemma2:2b"
+
+  huggingface:
+    model: "google/gemma-2-9b-it"
+    api_key: "Your Hugginface API KEY"
 ```
 
 #### ollama chat 모델을 바꾸시고 싶으시면 모델명만 바꾸시고 컨테이너를 다시 실행 시키시면 자동으로 다운로드 받아요.
@@ -56,6 +56,10 @@ docker-compose -f .\docker-compose.yaml up -d
 WEB 디버그시
 localhost에서 nginx 실행
 nginx의 nginx.conf는 nginx/nginx.local.dev.conf를 활용
+nginx 실행 (E:\1.1.nginx 에 nginx가 있을 경우)
+이때. nginx\의 nginx.local.dev.conf를 E:\1.1.nginx\nginx\conf\nginx.conf에 overwrite하여 다음 명령을 수행합니다.
+E:\1.1.nginx> .\nginx.exe
+
 docker-compose -f .\docker-compose.dev.noweb.yaml up -d
 
 CHATAPI 디버그용
@@ -68,24 +72,57 @@ docker-compose -f .\docker-compose.dev.yaml up -d
 문서 임베딩, LLM과의 대화는 ollama gemma2 컨테이너에서 수행해 줍니다
 ````
 
-주요 서비스 주소
+정상적으로 모든 컨테이너가 생성되면 Localhost로 접속하면 되요.
+
+```
+chatapp\npm run windev
+```
+
+- login <br>
+
+# ![login.png](features/login.png)
+
+- 사용자 추가
+
+# ![add_user.png](features/add_user.png)
+
+- LLM 프롬프트 및 전체
+
+# ![main_chat.png](features/main_chat.png)
+
+- 파일 등록
+
+# ![file_upload.png](features/file_upload.png)
+
+- 문서 분석
+
+# ![doc_ai_process.png](features/doc_ai_process.png)
+
+- 프롬프트 실행
+
+# ![prompt_input.png](features/prompt_input.png)
+
+- LLM 답변 보기기
+
+# ![prompt_result.png](features/prompt_result.png)
+
+## 주요 서비스 주소
 
 ### 사용자 관리 DOC API
 
-http://localhost:9001/api-docs
+- http://localhost:9001/api-docs
 
 ### 대화 관리 DOC API
 
 - http://localhost:9000/api/docs
-- ### Streamlit을 이용한 지식 조회
-- http://localhost:9002
--
 
 ### Rabbitmq 관리 대시보드
 
 ID : genai
 PASSWORD : openary
-http://localhost:15672/
 
-세부 사항은 openary-howto.pdf를 참조하세요<br>
-[openary-howto.pdf](short_doc/openary-howto.pdf)
+- http://localhost:15672/
+
+### Live Demo
+
+- http://openary.io/chat

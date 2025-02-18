@@ -3,7 +3,7 @@
 services:
 
   nginx:
-    image: nginx:alpine
+    image: hongjoong/opds-nginx:0.0.1
     ports:
       - "80:80"
     volumes:

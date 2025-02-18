@@ -4,9 +4,14 @@ langmodel:
   openai:
     apikey: ""
     chat_model: "gpt-4o"
+
   ollama:
-    address: "http://ollama:11434"
+    address: "http://localhost:11434"
     chat_model: "gemma2:2b"
+
+  huggingface:
+    model: "google/gemma-2-9b-it"
+    api_key: ""
 
 embeddingmodel:
   sentensetransformer:
@@ -71,11 +76,11 @@ streamlit-opds-chatapi:
     file_upload_url: "http://opds-chatapi:9000/files/upload/"
 
 RABBITMQ_SVC_QUEUE:
-  PREPROCES_Q_NAME: 'OPDS_PREP_REQ'
-  PREPROCES_ROUTEKEY: 'OPDS_PREP_REQ'
+  PREPROCES_Q_NAME: "OPDS_PREP_REQ"
+  PREPROCES_ROUTEKEY: "OPDS_PREP_REQ"
 
-  SUMMARY_Q_NAME: 'OPDS_SUMMARY_REQ'
-  SUMMARY_ROUTE_KEY: 'OPDS_SUMMARY_REQ'
+  SUMMARY_Q_NAME: "OPDS_SUMMARY_REQ"
+  SUMMARY_ROUTE_KEY: "OPDS_SUMMARY_REQ"
 
-  EMBEDDING_Q_NAME: 'OPDS_EMBEDDING_REQ'
-  EMBEDDING_ROUTE_KEY: 'OPDS_EMBEDDING_REQ'
+  EMBEDDING_Q_NAME: "OPDS_EMBEDDING_REQ"
+  EMBEDDING_ROUTE_KEY: "OPDS_EMBEDDING_REQ"
