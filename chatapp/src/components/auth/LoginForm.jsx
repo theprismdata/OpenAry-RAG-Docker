@@ -31,16 +31,57 @@ const DeleteConfirmDialog = ({ isOpen, onClose, onConfirm, email }) => {
   );
 };
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { UserPlus, UserX, Lock } from "lucide-react";
+import { UserPlus, UserX, Lock, Eye, EyeOff } from "lucide-react";
 import axios_mgmt from "../../utils/axios_mgmt";
 import {
   loginUser,
   selectAuthError,
   selectAuthLoading,
 } from "../../store/slices/authSlice";
+
+// PasswordInput 컴포넌트
+const PasswordInput = ({ id, name, value, onChange, placeholder, label }) => {
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 mb-2"
+      >
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          id={id}
+          name={name}
+          type={showPassword ? "text" : "password"}
+          required
+          value={value}
+          onChange={onChange}
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out pr-12"
+          placeholder={placeholder}
+        />
+        <button
+          type="button"
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          onMouseDown={() => setShowPassword(true)}
+          onMouseUp={() => setShowPassword(false)}
+          onMouseLeave={() => setShowPassword(false)}
+        >
+          {showPassword ? (
+            <Eye size={20} className="text-gray-500" />
+          ) : (
+            <EyeOff size={20} className="text-gray-500" />
+          )}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -78,8 +119,6 @@ export default function LoginForm() {
   const isLoading = useSelector(selectAuthLoading);
 
   const from = location.state?.from?.pathname || "/chat";
-
-  // showMainForm 추가
   const showMainForm = !showAddUser && !showDeleteUser && !showChangePassword;
 
   const handleChange = (e) => {
@@ -211,6 +250,7 @@ export default function LoginForm() {
       console.error("Password change failed:", err);
     }
   };
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-end bg-gradient-to-b from-blue-50 to-[#f8e8d8] p-6">
       <div className="w-full max-w-[400px] bg-white rounded-2xl shadow-2xl p-8 mx-auto">
@@ -230,7 +270,6 @@ export default function LoginForm() {
           </p>
         </div>
 
-        {/* 로그인 폼 */}
         {showMainForm && (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-5">
@@ -241,40 +280,26 @@ export default function LoginForm() {
                 >
                   이메일
                 </label>
-                <div className="relative">
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
-                    placeholder="이메일"
-                  />
-                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
+                  placeholder="이메일"
+                />
               </div>
 
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  비밀번호
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
-                    placeholder="비밀번호"
-                  />
-                </div>
-              </div>
+              <PasswordInput
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="비밀번호"
+                label="비밀번호"
+              />
             </div>
 
             {error && (
@@ -324,7 +349,7 @@ export default function LoginForm() {
           </form>
         )}
 
-        {/* 사용자 관리 메뉴 - 항상 표시 */}
+        {/* 사용자 관리 메뉴 */}
         <div className="mt-6 flex justify-between flex-wrap gap-4">
           <button
             onClick={() => {
@@ -383,43 +408,23 @@ export default function LoginForm() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="newPassword"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  새 비밀번호
-                </label>
-                <input
-                  id="newPassword"
-                  name="password"
-                  type="password"
-                  required
-                  value={newUserData.new_passwd}
-                  onChange={handleNewUserChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
-                  placeholder="새 비밀번호"
-                />
-              </div>
+              <PasswordInput
+                id="newPassword"
+                name="password"
+                value={newUserData.new_passwd}
+                onChange={handleNewUserChange}
+                placeholder="새 비밀번호"
+                label="새 비밀번호"
+              />
 
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  비밀번호 확인
-                </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  value={newUserData.confirmPassword}
-                  onChange={handleNewUserChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
-                  placeholder="비밀번호 확인"
-                />
-              </div>
+              <PasswordInput
+                id="confirmPassword"
+                name="confirmPassword"
+                value={newUserData.confirmPassword}
+                onChange={handleNewUserChange}
+                placeholder="비밀번호 확인"
+                label="비밀번호 확인"
+              />
             </div>
 
             <div className="flex space-x-4">
@@ -470,62 +475,32 @@ export default function LoginForm() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="currentPassword"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  현재 비밀번호
-                </label>
-                <input
-                  id="currentPassword"
-                  name="passwd"
-                  type="password"
-                  required
-                  value={changePasswordData.passwd}
-                  onChange={handleChangePasswordChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
-                  placeholder="현재 비밀번호"
-                />
-              </div>
+              <PasswordInput
+                id="currentPassword"
+                name="passwd"
+                value={changePasswordData.passwd}
+                onChange={handleChangePasswordChange}
+                placeholder="현재 비밀번호"
+                label="현재 비밀번호"
+              />
 
-              <div>
-                <label
-                  htmlFor="newPassword"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  새 비밀번호
-                </label>
-                <input
-                  id="newPassword"
-                  name="new_passwd"
-                  type="password"
-                  required
-                  value={changePasswordData.new_passwd}
-                  onChange={handleChangePasswordChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
-                  placeholder="새 비밀번호"
-                />
-              </div>
+              <PasswordInput
+                id="newPassword"
+                name="new_passwd"
+                value={changePasswordData.new_passwd}
+                onChange={handleChangePasswordChange}
+                placeholder="새 비밀번호"
+                label="새 비밀번호"
+              />
 
-              <div>
-                <label
-                  htmlFor="confirmNewPassword"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  새 비밀번호 확인
-                </label>
-                <input
-                  id="confirmNewPassword"
-                  name="confirmNewPassword"
-                  type="password"
-                  required
-                  value={changePasswordData.confirmNewPassword}
-                  onChange={handleChangePasswordChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
-                  placeholder="새 비밀번호 확인"
-                />
-              </div>
+              <PasswordInput
+                id="confirmNewPassword"
+                name="confirmNewPassword"
+                value={changePasswordData.confirmNewPassword}
+                onChange={handleChangePasswordChange}
+                placeholder="새 비밀번호 확인"
+                label="새 비밀번호 확인"
+              />
 
               {passwordError && (
                 <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">
@@ -589,24 +564,14 @@ export default function LoginForm() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="deletePassword"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  비밀번호
-                </label>
-                <input
-                  id="deletePassword"
-                  name="password"
-                  type="password"
-                  required
-                  value={deleteUserData.passwd}
-                  onChange={handleDeleteUserChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
-                  placeholder="비밀번호"
-                />
-              </div>
+              <PasswordInput
+                id="deletePassword"
+                name="password"
+                value={deleteUserData.passwd}
+                onChange={handleDeleteUserChange}
+                placeholder="비밀번호"
+                label="비밀번호"
+              />
             </div>
 
             <div className="flex space-x-4">
@@ -629,6 +594,7 @@ export default function LoginForm() {
             </div>
           </form>
         )}
+
         {/* 메시지 표시 */}
         {(addUserMessage || deleteUserMessage || changePasswordMessage) && (
           <div
