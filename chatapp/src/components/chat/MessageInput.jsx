@@ -1,35 +1,43 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function MessageInput({ onSendMessage, isLoading }) {
+export default function MessageInput({ onSendMessage, isLoading, transcript }) {
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (transcript) {
+      setMessage(transcript);
+    }
+  }, [transcript]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message.trim() && !isLoading) {
-      onSendMessage(message);
+      onSendMessage(message.trim());
       setMessage("");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="border-t p-4">
+    <form onSubmit={handleSubmit} className="p-4">
       <div className="flex space-x-4">
         <input
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="flex-1 rounded-lg border border-gray-300 p-2"
           placeholder="메시지를 입력하세요..."
+          className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           disabled={isLoading}
         />
         <button
           type="submit"
-          className={`px-4 py-2 bg-blue-500 text-white rounded-lg transition-colors duration-200 ${
-            isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-600"
-          }`}
+          className={`px-4 py-2 rounded-lg ${
+            isLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600"
+          } text-white`}
           disabled={isLoading}
         >
-          질문하기
+          전송
         </button>
       </div>
     </form>
