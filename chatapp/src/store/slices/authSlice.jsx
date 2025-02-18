@@ -45,6 +45,7 @@ const authSlice = createSlice({
       state.error = null;
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      sessionStorage.removeItem("dashboardView"); // 추가
     },
     clearError: (state) => {
       state.error = null;

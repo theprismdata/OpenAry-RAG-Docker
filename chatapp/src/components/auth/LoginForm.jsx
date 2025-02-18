@@ -34,6 +34,7 @@ const DeleteConfirmDialog = ({ isOpen, onClose, onConfirm, email }) => {
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
+import { UserPlus, UserX } from "lucide-react";
 import axios_mgmt from "../../utils/axios_mgmt";
 import {
   loginUser,
@@ -260,15 +261,16 @@ export default function LoginForm() {
             <div className="mt-6 flex justify-between">
               <button
                 onClick={() => setShowAddUser(true)}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
               >
-                새 사용자 추가 →
+                <UserPlus size={16} />새 사용자 추가
               </button>
               <button
                 onClick={() => setShowDeleteUser(true)}
-                className="text-red-600 hover:text-red-700 text-sm font-medium"
+                className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-medium"
               >
-                사용자 제거 →
+                <UserX size={16} />
+                사용자 제거
               </button>
             </div>
           </>
@@ -426,6 +428,18 @@ export default function LoginForm() {
           onConfirm={handleDeleteUser}
           email={deleteUserData.email}
         />
+      </div>
+      {/* Contributor 섹션 */}
+      <div className="absolute bottom-4 right-6 text-right">
+        <p className="text-xs font-medium text-gray-400 mb-1">
+          OpenAry Contributer
+        </p>
+        <div className="space-y-0.5">
+          <p className="text-xs text-gray-400">theprismdata@gmail.com</p>
+          <p className="text-xs text-gray-400">tnrud4685@gmail.com</p>
+          <p className="text-xs text-gray-400">armyost1@gmail.com</p>
+          <p className="text-xs text-gray-400">ljs9643@gmail.com</p>
+        </div>
       </div>
     </div>
   );
