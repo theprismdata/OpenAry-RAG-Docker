@@ -1,15 +1,4 @@
 // src/components/auth/LoginForm.jsx
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
-import { UserPlus, UserX, Lock } from "lucide-react";
-import axios_mgmt from "../../utils/axios_mgmt";
-import {
-  loginUser,
-  selectAuthError,
-  selectAuthLoading,
-} from "../../store/slices/authSlice";
-
 const DeleteConfirmDialog = ({ isOpen, onClose, onConfirm, email }) => {
   if (!isOpen) return null;
 
@@ -41,6 +30,18 @@ const DeleteConfirmDialog = ({ isOpen, onClose, onConfirm, email }) => {
     </div>
   );
 };
+
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
+import { UserPlus, UserX, Lock } from "lucide-react";
+import axios_mgmt from "../../utils/axios_mgmt";
+import {
+  loginUser,
+  selectAuthError,
+  selectAuthLoading,
+} from "../../store/slices/authSlice";
+
 export default function LoginForm() {
   const [formData, setFormData] = useState({
     email: "",
@@ -186,7 +187,7 @@ export default function LoginForm() {
     }
 
     try {
-      const response = await axios_mgmt.post("/mgmt/update_password", {
+      const response = await axios_mgmt.post("/update_password", {
         email: changePasswordData.email,
         passwd: changePasswordData.passwd,
         new_passwd: changePasswordData.new_passwd,
