@@ -21,64 +21,54 @@ export default function ChatWindow() {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voices, setVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState(null);
   const { user, token } = useSelector((state) => state.auth);
 
-  // TTS 초기화
-  const initTTS = useCallback(() => {
-    if ("speechSynthesis" in window) {
+  // 마크다운 제거 함수
+  const removeMarkdown = useCallback((text) => {
+    return text
+      .replace(/`{3}[\s\S]*?`{3}/g, "") // 코드 블록 제거
+      .replace(/`(.+?)`/g, "$1") // 인라인 코드 제거
+      .replace(/\*\*(.+?)\*\*/g, "$1") // 볼드 제거
+      .replace(/\*(.+?)\*/g, "$1") // 이탤릭 제거
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1") // 링크 제거
+      .replace(/#{1,6}\s+/g, "") // 헤더 제거
+      .replace(/(\*|-|\+)\s/g, "") // 불렛 포인트 제거
+      .replace(/\n\d+\.\s/g, "\n") // 숫자 리스트 제거
+      .replace(/\n{2,}/g, "\n") // 여러 줄 바꿈을 하나로
+      .trim();
+  }, []);
+
+  // 음성 목록 초기화
+  useEffect(() => {
+    const loadVoices = () => {
       const synthesis = window.speechSynthesis;
-      const voices = synthesis.getVoices();
-      const koreanVoice = voices.find((voice) => voice.lang.includes("ko"));
-      return {
-        synthesis,
-        voice: koreanVoice || voices[0],
-      };
-    }
-    return null;
-  }, []);
+      const availableVoices = synthesis.getVoices();
+      const googleKoreanVoice = availableVoices.find(
+        (voice) => voice.name.includes("Google") && voice.lang === "ko-KR"
+      );
 
-  // 텍스트 읽기 함수
-  const speak = useCallback(
-    (text) => {
-      const tts = initTTS();
-      if (!tts) {
-        alert("죄송합니다. 이 브라우저는 음성 합성을 지원하지 않습니다.");
-        return;
+      if (googleKoreanVoice) {
+        setSelectedVoice(googleKoreanVoice);
+      } else {
+        console.warn("Google Korean voice not found");
       }
+    };
 
-      // 이전 음성이 재생 중이라면 중지
-      if (isSpeaking) {
-        tts.synthesis.cancel();
-        setIsSpeaking(false);
-        return;
-      }
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.voice = tts.voice;
-      utterance.lang = "ko-KR";
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
-
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = (event) => {
-        console.error("TTS Error:", event);
-        setIsSpeaking(false);
-      };
-
-      tts.synthesis.speak(utterance);
-    },
-    [isSpeaking]
-  );
-
-  // 음성 중지
-  const stopSpeaking = useCallback(() => {
     if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+      loadVoices();
     }
+
+    return () => {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
   }, []);
 
+  // 메시지 전송 처리
   const handleSendMessage = useCallback(
     async (question) => {
       setIsLoading(true);
@@ -86,7 +76,9 @@ export default function ChatWindow() {
         setMessages((prev) => [
           ...prev,
           {
-            id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            id: `user-${prev.length}-${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}`,
             type: "user",
             content: question,
           },
@@ -105,7 +97,9 @@ export default function ChatWindow() {
         setMessages((prev) => [
           ...prev,
           {
-            id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            id: `bot-${prev.length}-${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}`,
             type: "bot",
             content: response.answer,
             sources: response.sourcelist,
@@ -127,7 +121,9 @@ export default function ChatWindow() {
         setMessages((prev) => [
           ...prev,
           {
-            id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            id: `error-${prev.length}-${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}`,
             type: "bot",
             content:
               "죄송합니다. 메시지 처리 중 오류가 발생했습니다. 다시 시도해 주세요.",
@@ -140,38 +136,7 @@ export default function ChatWindow() {
     [sessionId, user.email, token]
   );
 
-  // ChatMessage 컴포넌트에 TTS 버튼 추가를 위한 렌더 함수
-  const renderMessage = (message) => (
-    <div key={message.id} className="flex items-start space-x-2">
-      <ChatMessage {...message} />
-      {message.type === "bot" && (
-        <button
-          onClick={() => speak(message.content)}
-          className={`p-2 rounded-full ${
-            isSpeaking
-              ? "bg-red-500 hover:bg-red-600"
-              : "bg-gray-200 hover:bg-gray-300"
-          }`}
-        >
-          {isSpeaking ? (
-            <VolumeX className="w-4 h-4 text-white" />
-          ) : (
-            <Volume2 className="w-4 h-4 text-gray-600" />
-          )}
-        </button>
-      )}
-    </div>
-  );
-
-  // 컴포넌트가 언마운트될 때 음성 중지
-  useEffect(() => {
-    return () => {
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
+  // STT 초기화
   const recognition = useCallback(() => {
     if ("webkitSpeechRecognition" in window) {
       const recognition = new window.webkitSpeechRecognition();
@@ -183,6 +148,7 @@ export default function ChatWindow() {
     return null;
   }, []);
 
+  // STT 시작
   const startListening = useCallback(() => {
     if (!recognition) {
       alert("죄송합니다. 이 브라우저는 음성 인식을 지원하지 않습니다.");
@@ -218,6 +184,7 @@ export default function ChatWindow() {
     recognitionInstance.start();
   }, [recognition, handleSendMessage, transcript]);
 
+  // STT 중지
   const stopListening = useCallback(() => {
     if (recognition) {
       const recognitionInstance = recognition();
@@ -226,6 +193,68 @@ export default function ChatWindow() {
     }
   }, [recognition]);
 
+  // TTS 실행
+  const speak = useCallback(
+    (text) => {
+      const synthesis = window.speechSynthesis;
+
+      if (!synthesis || !selectedVoice) {
+        alert("Google 한국어 음성을 찾을 수 없습니다.");
+        return;
+      }
+
+      // 모든 음성 취소
+      synthesis.cancel();
+
+      // 재생 중이면 중지
+      if (isSpeaking) {
+        setIsSpeaking(false);
+        return;
+      }
+
+      // 마크다운 제거
+      const cleanText = removeMarkdown(text);
+
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.voice = selectedVoice;
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+
+      // Chrome 버그 해결을 위한 주기적인 resume 호출
+      const resumeInterval = setInterval(() => {
+        if (synthesis.speaking) {
+          synthesis.resume();
+        } else {
+          clearInterval(resumeInterval);
+        }
+      }, 5000);
+
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+      };
+
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        clearInterval(resumeInterval);
+      };
+
+      utterance.onerror = (event) => {
+        if (event.error !== "interrupted") {
+          console.error("TTS Error:", event);
+        }
+        setIsSpeaking(false);
+        clearInterval(resumeInterval);
+      };
+
+      // 음성 재생 시작
+      setTimeout(() => {
+        synthesis.speak(utterance);
+      }, 100);
+    },
+    [isSpeaking, removeMarkdown, selectedVoice]
+  );
+
+  // 세션 목록 가져오기
   const fetchSessionList = async () => {
     try {
       const response = await getSessionList(user.email, token);
@@ -235,6 +264,7 @@ export default function ChatWindow() {
     }
   };
 
+  // 세션 히스토리 가져오기
   const fetchSessionHistory = async (selectedSessionId) => {
     setIsLoading(true);
     try {
@@ -244,14 +274,18 @@ export default function ChatWindow() {
       });
 
       if (response.data) {
-        const historyMessages = response.data.history.flatMap((item) => [
+        const historyMessages = response.data.history.flatMap((item, index) => [
           {
-            id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            id: `user-${index}-${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}`,
             type: "user",
             content: item.question,
           },
           {
-            id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            id: `bot-${index}-${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}`,
             type: "bot",
             content: item.answer,
             sources: item.sourcelist,
@@ -268,16 +302,19 @@ export default function ChatWindow() {
     }
   };
 
+  // 세션 선택 처리
   const handleSessionSelect = useCallback((selectedSessionId) => {
     setSessionId(selectedSessionId);
     fetchSessionHistory(selectedSessionId);
   }, []);
 
+  // 대시보드 토글 처리
   const handleToggleDashboard = useCallback((isDocs) => {
     sessionStorage.setItem("dashboardView", JSON.stringify(isDocs));
     setShowDashboard(isDocs);
   }, []);
 
+  // 초기 세션 목록 로드
   useEffect(() => {
     const fetchSessions = async () => {
       try {
@@ -289,6 +326,38 @@ export default function ChatWindow() {
 
     fetchSessions();
   }, [user.email, token]);
+
+  // 컴포넌트 언마운트 시 음성 정리
+  useEffect(() => {
+    return () => {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  // ChatMessage 컴포넌트에 TTS 버튼 추가를 위한 렌더 함수
+  const renderMessage = (message) => (
+    <div key={message.id} className="flex items-start space-x-2">
+      <ChatMessage {...message} />
+      {message.type === "bot" && (
+        <button
+          onClick={() => speak(message.content)}
+          className={`p-2 rounded-full ${
+            isSpeaking
+              ? "bg-red-500 hover:bg-red-600"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
+        >
+          {isSpeaking ? (
+            <VolumeX className="w-4 h-4 text-white" />
+          ) : (
+            <Volume2 className="w-4 h-4 text-gray-600" />
+          )}
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <div className="flex h-full">
@@ -327,6 +396,7 @@ export default function ChatWindow() {
                   <Mic className="w-5 h-5 text-white" />
                 )}
               </button>
+
               <div className="flex-1">
                 <MessageInput
                   onSendMessage={handleSendMessage}
