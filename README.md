@@ -53,7 +53,9 @@ docker-compose -f .\docker-compose.yaml up -d
 ```
 
 ````
-WEB 디버그용
+WEB 디버그시
+localhost에서 nginx 실행
+nginx의 nginx.conf는 nginx/nginx.local.dev.conf를 활용
 docker-compose -f .\docker-compose.dev.noweb.yaml up -d
 
 CHATAPI 디버그용
