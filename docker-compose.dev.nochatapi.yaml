@@ -2,20 +2,6 @@
 
 services:
 
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    restart: always
-    depends_on:
-      - openarychat-app
-    networks:
-      - openary_network
-
-
   opds-embedding:
     image: hongjoong/opds-embedding:0.0.1
     container_name: opds-embedding
