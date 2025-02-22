@@ -59,7 +59,9 @@ nginx의 nginx.conf는 nginx/nginx.local.dev.conf를 활용
 docker-compose -f .\docker-compose.dev.noweb.yaml up -d
 
 CHATAPI 디버그용
-docker-compose -f .\docker-compose.dev.nochatapi up -d
+1. nginx 가동(1.1.nginx에 nginx가 설치되어 있다고 가정정)
+PS E:\1.1.nginx> .\nginx.exe
+2. docker-compose -f .\docker-compose.dev.nochatapi.yaml up -d
 
 전체 디버깅용 (개발 설정 포함)
 docker-compose -f .\docker-compose.dev.yaml up -d
