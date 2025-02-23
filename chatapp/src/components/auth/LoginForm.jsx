@@ -223,7 +223,7 @@ export default function LoginForm() {
             />
           </div>
           <h2 className="text-3xl font-bold text-gray-800 mb-2">
-            OpenAry~ 자료를 찾아줘
+            OpenAry RAG System
           </h2>
           <p className="text-sm text-gray-600">
             나무늘보와 함께 지식을 검색해봐요.
@@ -334,7 +334,8 @@ export default function LoginForm() {
             }}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
           >
-            <UserPlus size={16} />새 사용자 추가
+            <UserPlus size={16} />
+            회원 가입
           </button>
           <button
             onClick={() => {
@@ -356,7 +357,7 @@ export default function LoginForm() {
             className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-medium"
           >
             <UserX size={16} />
-            사용자 제거
+            회원 탈퇴
           </button>
         </div>
 
@@ -369,7 +370,7 @@ export default function LoginForm() {
                   htmlFor="newEmail"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  새 사용자 이메일
+                  새 회원 이메일
                 </label>
                 <input
                   id="newEmail"
