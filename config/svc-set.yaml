@@ -11,7 +11,7 @@ langmodel:
 
     huggingface:
       model: "google/gemma-2-9b-it"
-      api_key: "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"
+      api_key: ""
 
   LOCAL:
     Ollama:
