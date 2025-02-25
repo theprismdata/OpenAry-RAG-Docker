@@ -58,6 +58,12 @@ localhost에서 nginx 실행
 nginx의 nginx.conf는 nginx/nginx.local.dev.conf를 활용
 docker-compose -f .\docker-compose.dev.noweb.yaml up -d
 
+WEB, CHATAPI 디버그용
+1. nginx 가동(1.1.nginx에 nginx가 설치되어 있다고 가정정)
+PS E:\1.1.nginx> .\nginx.exe
+2. docker-compose -f .\docker-compose.dev.onlydata.yaml up -d
+
+
 CHATAPI 디버그용
 1. nginx 가동(1.1.nginx에 nginx가 설치되어 있다고 가정정)
 PS E:\1.1.nginx> .\nginx.exe

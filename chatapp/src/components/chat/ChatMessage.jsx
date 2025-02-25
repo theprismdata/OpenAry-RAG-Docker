@@ -1,23 +1,23 @@
 import React from "react";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 export default function ChatMessage({
   type,
-  content = "", // Add default empty string
+  content = "",
   sources = [],
   searchResults = [],
 }) {
-  const processMarkdown = (text) => {
-    if (!text) return ""; // Return empty string if text is null or undefined
+  const renderMarkdown = (text) => {
+    if (!text) return "";
 
-    return text
-      .replace(/\n/g, "<br>")
-      .replace(
-        /\|([^|]+)\|([^|]+)\|/g,
-        "<table><tr><td>$1</td><td>$2</td></tr></table>"
-      )
-      .replace(/`([^`]+)`/g, "<code>$1</code>")
-      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+    // marked 라이브러리를 사용하여 마크다운을 HTML로 변환
+    const rawHtml = marked.parse(text);
+
+    // DOMPurify를 사용하여 XSS 공격 방지 (보안 강화)
+    const cleanHtml = DOMPurify.sanitize(rawHtml);
+
+    return cleanHtml;
   };
 
   return (
@@ -32,7 +32,7 @@ export default function ChatMessage({
         <div className="prose dark:prose-invert max-w-none">
           <div
             dangerouslySetInnerHTML={{
-              __html: processMarkdown(content),
+              __html: renderMarkdown(content),
             }}
           />
         </div>
