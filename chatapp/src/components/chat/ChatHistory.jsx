@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
 import axios from "../../utils/axios_chatapi";
-import { X, MessageCircle, FileText } from "lucide-react";
+import { X, MessageCircle, FileText, Paperclip } from "lucide-react";
 
 export default function ChatHistory({
   sessions,
@@ -244,22 +244,28 @@ export default function ChatHistory({
       <div className="border-t border-gray-200 p-4">
         <div className="mb-4">
           <label className="block">
-            <span className="sr-only">파일 선택</span>
             <div className="relative">
-              <input
-                id="file-input"
-                type="file"
-                multiple
-                onChange={handleFileSelect}
-                disabled={uploading}
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-lg file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-blue-50 file:text-blue-700
-                  hover:file:bg-blue-100
-                  disabled:opacity-50 disabled:cursor-not-allowed"
-              />
+              {/* 파일 선택 버튼 디자인 변경 및 클립 아이콘 추가 */}
+              <div className="relative flex items-center w-full">
+                <div className="relative overflow-hidden flex-1">
+                  <div className="flex items-center p-2 border border-gray-200 bg-white rounded-lg">
+                    <Paperclip className="h-5 w-5 text-blue-600 mr-2" />
+                    <span className="text-sm text-gray-700">
+                      {selectedFiles.length === 0
+                        ? "파일을 선택하세요"
+                        : `${selectedFiles.length}개 파일 선택됨`}
+                    </span>
+                  </div>
+                  <input
+                    id="file-input"
+                    type="file"
+                    multiple
+                    onChange={handleFileSelect}
+                    disabled={uploading}
+                    className="absolute inset-0 opacity-0 w-full cursor-pointer"
+                  />
+                </div>
+              </div>
             </div>
           </label>
         </div>
