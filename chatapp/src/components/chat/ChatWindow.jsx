@@ -23,7 +23,28 @@ export default function ChatWindow() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voices, setVoices] = useState([]);
   const [selectedVoice, setSelectedVoice] = useState(null);
+  // 스트리밍 항상 사용으로 설정 (useStreaming 상태 제거)
   const { user, token } = useSelector((state) => state.auth);
+
+  // 스트리밍 메시지 전송 함수 (컴포넌트 내부로 이동)
+  const sendStreamingMessage = async (messageData) => {
+    // axios_chatapi에서 baseURL 가져오기
+    const baseURL = axios.defaults.baseURL;
+    const response = await fetch(`${baseURL}/rqa_stream`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(messageData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.body;
+  };
 
   // 마크다운 제거 함수
   const removeMarkdown = useCallback((text) => {
@@ -68,7 +89,183 @@ export default function ChatWindow() {
     };
   }, []);
 
-  // 메시지 전송 처리
+  // 스트리밍 메시지 전송 처리
+  const handleStreamingMessage = useCallback(
+    async (question) => {
+      setIsLoading(true);
+
+      try {
+        // 사용자 메시지만 먼저 추가
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `user-${prev.length}-${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}`,
+            type: "user",
+            content: question,
+          },
+        ]);
+
+        const streamResponse = await sendStreamingMessage({
+          email: user.email,
+          question,
+          session_id: sessionId,
+          isnewsession: sessionId === 0,
+        });
+
+        const reader = streamResponse.getReader();
+        const decoder = new TextDecoder();
+        let done = false;
+        let responseText = "";
+        let botMessageId = null;
+        let sources = [];
+        let searchResults = [];
+        let firstChunkReceived = false;
+
+        while (!done) {
+          const { value, done: doneReading } = await reader.read();
+          done = doneReading;
+
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n").filter((line) => line.trim());
+
+          for (const line of lines) {
+            try {
+              const data = JSON.parse(line);
+
+              // 청크 타입에 따른 처리
+              switch (data.type) {
+                case "session":
+                  if (sessionId === 0) {
+                    const newSessionId = data.session_id;
+                    setSessionId(newSessionId);
+                    setSessions((prev) => [
+                      {
+                        [newSessionId]: question.substring(0, 30) + "...",
+                      },
+                      ...prev,
+                    ]);
+                  }
+                  break;
+
+                case "metadata":
+                  sources = data.sources || [];
+                  searchResults = data.search_results || [];
+                  break;
+
+                case "chunk":
+                  // 첫 번째 청크를 받았을 때만 메시지 생성
+                  if (!firstChunkReceived) {
+                    firstChunkReceived = true;
+                    botMessageId = `bot-${
+                      messages.length
+                    }-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+                    // 첫 청크를 받았을 때 봇 메시지 추가
+                    setMessages((prev) => [
+                      ...prev,
+                      {
+                        id: botMessageId,
+                        type: "bot",
+                        content: data.content,
+                        sources,
+                        searchResults,
+                        isComplete: false, // 스트리밍 중이므로 미완료 상태
+                      },
+                    ]);
+                    responseText = data.content;
+                  } else {
+                    responseText += data.content;
+
+                    // 이후 청크는 기존 메시지 업데이트
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === botMessageId
+                          ? {
+                              ...msg,
+                              content: responseText,
+                              sources,
+                              searchResults,
+                              isComplete: false, // 스트리밍 중이므로 미완료 상태
+                            }
+                          : msg
+                      )
+                    );
+                  }
+                  break;
+
+                case "done":
+                  // 스트리밍 완료
+                  if (botMessageId) {
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === botMessageId
+                          ? {
+                              ...msg,
+                              content: responseText,
+                              sources,
+                              searchResults,
+                              isComplete: true, // 완료 플래그 설정
+                            }
+                          : msg
+                      )
+                    );
+                  }
+                  break;
+
+                case "error":
+                  throw new Error(data.error);
+
+                default:
+                  console.warn("Unknown chunk type:", data);
+              }
+            } catch (e) {
+              console.error("Failed to parse streaming chunk:", e, line);
+            }
+          }
+        }
+
+        // 만약 응답이 없었다면 오류 메시지 표시
+        if (!firstChunkReceived) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `error-${prev.length}-${Date.now()}-${Math.random()
+                .toString(36)
+                .substr(2, 9)}`,
+              type: "bot",
+              content: "응답을 받지 못했습니다. 다시 시도해 주세요.",
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Failed to process streaming message:", error);
+
+        // 오류 메시지 추가
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `error-${prev.length}-${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}`,
+            type: "bot",
+            content:
+              "죄송합니다. 메시지 처리 중 오류가 발생했습니다. 다시 시도해 주세요.",
+            sources: [],
+            searchResults: [],
+          },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [sessionId, user, token, messages.length, sendStreamingMessage]
+  );
+
+  // 비스트리밍 메시지 전송 처리 함수 - 하위 호환성을 위해 유지
   const handleSendMessage = useCallback(
     async (question) => {
       setIsLoading(true);
@@ -133,7 +330,15 @@ export default function ChatWindow() {
         setIsLoading(false);
       }
     },
-    [sessionId, user.email, token]
+    [sessionId, user, token]
+  );
+
+  // 사용자 메시지 처리 - 항상 스트리밍 메시지 사용
+  const handleMessageSubmit = useCallback(
+    (question) => {
+      handleStreamingMessage(question);
+    },
+    [handleStreamingMessage]
   );
 
   // STT 초기화
@@ -171,7 +376,7 @@ export default function ChatWindow() {
     recognitionInstance.onend = () => {
       setIsListening(false);
       if (transcript.trim()) {
-        handleSendMessage(transcript.trim());
+        handleMessageSubmit(transcript.trim());
         setTranscript("");
       }
     };
@@ -182,7 +387,7 @@ export default function ChatWindow() {
     };
 
     recognitionInstance.start();
-  }, [recognition, handleSendMessage, transcript]);
+  }, [recognition, handleMessageSubmit, transcript]);
 
   // STT 중지
   const stopListening = useCallback(() => {
@@ -399,7 +604,7 @@ export default function ChatWindow() {
 
               <div className="flex-1">
                 <MessageInput
-                  onSendMessage={handleSendMessage}
+                  onSendMessage={handleMessageSubmit}
                   isLoading={isLoading}
                   transcript={transcript}
                 />
