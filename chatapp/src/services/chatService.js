@@ -8,6 +8,25 @@ export const sendMessage = async (messageData, token) => {
   return response.data;
 };
 
+export const sendStreamingMessage = async (messageData, token) => {
+  // Fetch API 사용 (스트리밍 응답을 위해)
+  const baseURL = axios.defaults.baseURL;
+  const response = await fetch(`${baseURL}/rqa_stream`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(messageData),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.body;
+};
+
 export const getSessionList = async (email, token) => {
   try {
     console.log('Sending getSessionList request with:', {
@@ -30,4 +49,3 @@ export const getSessionList = async (email, token) => {
     throw error;
   }
 };
-
