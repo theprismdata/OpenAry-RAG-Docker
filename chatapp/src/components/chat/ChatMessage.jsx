@@ -180,9 +180,11 @@ export default function ChatMessage({
                         <div className="flex items-center gap-1">
                           {getDocumentIcon(source.filename)}
                           <p className="font-medium">
-                            {source.filename ||
+                            {/* {source.filename ||
                               source.title ||
                               "문서 이름 없음"}
+                               */}
+                            {source}
                           </p>
                         </div>
                         {sourceUrl && (
