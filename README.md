@@ -62,7 +62,8 @@ WEB, CHATAPI 디버그용
 1. nginx 가동(1.1.nginx에 nginx가 설치되어 있다고 가정정)
 PS E:\1.1.nginx> .\nginx.exe
 2. docker-compose -f .\docker-compose.dev.onlydata.yaml up -d
-
+3. chapapp 이동
+   npm run dev-windows
 
 CHATAPI 디버그용
 1. nginx 가동(1.1.nginx에 nginx가 설치되어 있다고 가정정)
