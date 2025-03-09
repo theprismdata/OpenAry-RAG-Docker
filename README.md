@@ -48,34 +48,43 @@ langmodel:
 
 #### Docker Desktop을 설치후 다음의 명령을 수행합니다.
 
-```commandline
-docker-compose -f .\docker-compose.yaml up -d
-```
+#### 1 Nginx 가동
 
 ```
-ngnix 가동
+cd nginx
 .\nginx.exe
 ```
 
-````
-CASE 1 : WEB Debug
+#### CASE 1 : WEB Debug
+
+```
 docker-compose -f .\docker-compose.dev.noweb.yaml up -d
+```
 
-CASE 2: WEB, CHATAPI Debug
-Windows PowerShell에서 1,2,3 마다 개별로 새창을 띄우세요
+#### CASE 2: WEB, CHATAPI Debug
+
+Windows PowerShell에서 1,2 마다 개별로 새창을 띄우세요
+
+```
 1. docker-compose -f .\docker-compose.dev.onlydata.yaml up -d
-2. chapapp 이동
+2. chapapp
+ cd chatapp
  npm run dev-windows
+```
 
-CASE 3: CHATAPI Debug
+#### CASE 3: CHATAPI Debug
+
 1. docker-compose -f .\docker-compose.dev.nochatapi.yaml up -d
-
 
 ```commandline
 문서 임베딩, LLM과의 대화는 ollama gemma2 컨테이너에서 수행해 줍니다
-````
+```
 
 주요 서비스 주소
+
+### 채팅 서비스
+
+http://localhost
 
 ### 사용자 관리 DOC API
 
@@ -84,9 +93,6 @@ http://localhost:9001/api-docs
 ### 대화 관리 DOC API
 
 - http://localhost:9000/api/docs
-- ### Streamlit을 이용한 지식 조회
-- http://localhost:9002
--
 
 ### Rabbitmq 관리 대시보드
 
