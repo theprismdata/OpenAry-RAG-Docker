@@ -52,29 +52,24 @@ langmodel:
 docker-compose -f .\docker-compose.yaml up -d
 ```
 
+```
+ngnix 가동
+.\nginx.exe
+```
+
 ````
-WEB 디버그시
-localhost에서 nginx를 실행해야 합니다.
-nginx의 nginx.conf는 nginx/nginx.local.dev.conf를 활용
+CASE 1 : WEB Debug
 docker-compose -f .\docker-compose.dev.noweb.yaml up -d
 
-WEB, CHATAPI 디버그용
+CASE 2: WEB, CHATAPI Debug
 Windows PowerShell에서 1,2,3 마다 개별로 새창을 띄우세요
-1. nginx 가동하기 (E:\\1.1.nginx에 nginx가 설치되어 있다고 가정할게요)
-PS E:\1.1.nginx> .\nginx.exe
+1. docker-compose -f .\docker-compose.dev.onlydata.yaml up -d
+2. chapapp 이동
+ npm run dev-windows
 
-2. docker-compose -f .\docker-compose.dev.onlydata.yaml up -d
+CASE 3: CHATAPI Debug
+1. docker-compose -f .\docker-compose.dev.nochatapi.yaml up -d
 
-3. chapapp 이동
-   npm run dev-windows
-
-CHATAPI 디버그용
-1. nginx 가동하기 (E:\\1.1.nginx에 nginx가 설치되어 있다고 가정할게요)
-PS E:\1.1.nginx> .\nginx.exe
-2. docker-compose -f .\docker-compose.dev.nochatapi.yaml up -d
-
-전체 디버깅용 (개발 설정 포함)
-docker-compose -f .\docker-compose.dev.yaml up -d
 
 ```commandline
 문서 임베딩, LLM과의 대화는 ollama gemma2 컨테이너에서 수행해 줍니다
