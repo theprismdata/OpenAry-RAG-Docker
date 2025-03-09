@@ -54,19 +54,22 @@ docker-compose -f .\docker-compose.yaml up -d
 
 ````
 WEB 디버그시
-localhost에서 nginx 실행
+localhost에서 nginx를 실행해야 합니다.
 nginx의 nginx.conf는 nginx/nginx.local.dev.conf를 활용
 docker-compose -f .\docker-compose.dev.noweb.yaml up -d
 
 WEB, CHATAPI 디버그용
-1. nginx 가동(1.1.nginx에 nginx가 설치되어 있다고 가정정)
+Windows PowerShell에서 1,2,3 마다 개별로 새창을 띄우세요
+1. nginx 가동하기 (E:\\1.1.nginx에 nginx가 설치되어 있다고 가정할게요)
 PS E:\1.1.nginx> .\nginx.exe
+
 2. docker-compose -f .\docker-compose.dev.onlydata.yaml up -d
+
 3. chapapp 이동
    npm run dev-windows
 
 CHATAPI 디버그용
-1. nginx 가동(1.1.nginx에 nginx가 설치되어 있다고 가정정)
+1. nginx 가동하기 (E:\\1.1.nginx에 nginx가 설치되어 있다고 가정할게요)
 PS E:\1.1.nginx> .\nginx.exe
 2. docker-compose -f .\docker-compose.dev.nochatapi.yaml up -d
 

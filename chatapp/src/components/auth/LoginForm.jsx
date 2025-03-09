@@ -228,6 +228,9 @@ export default function LoginForm() {
           <p className="text-sm text-gray-600">
             나무늘보와 함께 지식을 검색해봐요.
           </p>
+          <p className="text-sm text-gray-600">
+            GPT-4o, Claude, Gemma를 지원합니다.
+          </p>
         </div>
 
         {/* 로그인 폼 */}
@@ -335,7 +338,7 @@ export default function LoginForm() {
             className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
           >
             <UserPlus size={16} />
-            회원 가입
+            무료 회원 가입
           </button>
           <button
             onClick={() => {
