@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
 import { sendMessage, getSessionList } from "../../services/chatService";
 import ChatHistory from "./ChatHistory";
@@ -7,7 +7,7 @@ import MessageInput from "./MessageInput";
 import LoadingMessage from "./LoadingMessage";
 import FileDashboard from "../../components/dashboard/FileDashboard";
 import axios from "../../utils/axios_chatapi";
-import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { Mic, MicOff, Volume2, VolumeX, Menu, X } from "lucide-react";
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState([]);
@@ -23,8 +23,10 @@ export default function ChatWindow() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voices, setVoices] = useState([]);
   const [selectedVoice, setSelectedVoice] = useState(null);
-  // 스트리밍 항상 사용으로 설정 (useStreaming 상태 제거)
+  // 모바일 메뉴 상태 추가
+  const [showSidebar, setShowSidebar] = useState(false);
   const { user, token } = useSelector((state) => state.auth);
+  const messagesEndRef = useRef(null);
 
   // 스트리밍 메시지 전송 함수 (컴포넌트 내부로 이동)
   const sendStreamingMessage = async (messageData) => {
@@ -60,6 +62,27 @@ export default function ChatWindow() {
       .replace(/\n{2,}/g, "\n") // 여러 줄 바꿈을 하나로
       .trim();
   }, []);
+
+  // 스크롤 자동 이동
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // 모바일 사이드바 닫기 (화면 크기 변경 시)
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768 && showSidebar) {
+        setShowSidebar(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [showSidebar]);
 
   // 음성 목록 초기화
   useEffect(() => {
@@ -337,8 +360,12 @@ export default function ChatWindow() {
   const handleMessageSubmit = useCallback(
     (question) => {
       handleStreamingMessage(question);
+      // 모바일에서 메시지 전송 후 사이드바 닫기
+      if (window.innerWidth <= 768 && showSidebar) {
+        setShowSidebar(false);
+      }
     },
-    [handleStreamingMessage]
+    [handleStreamingMessage, showSidebar]
   );
 
   // STT 초기화
@@ -511,6 +538,10 @@ export default function ChatWindow() {
   const handleSessionSelect = useCallback((selectedSessionId) => {
     setSessionId(selectedSessionId);
     fetchSessionHistory(selectedSessionId);
+    // 모바일에서 세션 선택 후 사이드바 닫기
+    if (window.innerWidth <= 768) {
+      setShowSidebar(false);
+    }
   }, []);
 
   // 대시보드 토글 처리
@@ -565,17 +596,67 @@ export default function ChatWindow() {
   );
 
   return (
-    <div className="flex h-full">
-      <div className="w-1/4 h-full border-r border-gray-200">
-        <ChatHistory
-          sessions={sessions}
-          onSessionSelect={handleSessionSelect}
-          currentSessionId={sessionId}
-          onToggleDashboard={handleToggleDashboard}
-          showDashboard={showDashboard}
-        />
+    <div className="flex flex-col h-full md:flex-row">
+      {/* 모바일 헤더 - md 크기 미만에서만 표시 */}
+      <div className="md:hidden flex items-center justify-between border-b border-gray-200 p-4 bg-white">
+        <button
+          onClick={() => setShowSidebar(true)}
+          className="p-2 rounded-md hover:bg-gray-100"
+          aria-label="메뉴 열기"
+        >
+          <Menu className="w-6 h-6 text-gray-700" />
+        </button>
+        <h1 className="text-lg font-bold">OpenAry Chat</h1>
+        <div className="w-6"></div> {/* 오른쪽 균형을 위한 빈 공간 */}
       </div>
 
+      {/* 사이드바 - 모바일에서는 오버레이, 데스크톱에서는 고정 */}
+      <div
+        className={`${
+          showSidebar
+            ? "fixed inset-0 z-40 flex md:relative md:inset-auto"
+            : "hidden md:block"
+        } md:w-1/4 md:border-r md:border-gray-200 md:h-full bg-white`}
+      >
+        {/* 모바일 사이드바 오버레이 배경 */}
+        {showSidebar && (
+          <div
+            className="md:hidden fixed inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowSidebar(false)}
+          ></div>
+        )}
+
+        {/* 사이드바 내용 */}
+        <div
+          className={`${
+            showSidebar ? "fixed left-0 top-0 h-full w-3/4 max-w-xs z-50" : ""
+          } md:static md:w-full md:max-w-none flex flex-col h-full bg-white`}
+        >
+          {/* 모바일 사이드바 헤더 */}
+          {showSidebar && (
+            <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="font-bold">메뉴</h2>
+              <button
+                onClick={() => setShowSidebar(false)}
+                className="p-2 rounded-md hover:bg-gray-100"
+                aria-label="메뉴 닫기"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          )}
+
+          <ChatHistory
+            sessions={sessions}
+            onSessionSelect={handleSessionSelect}
+            currentSessionId={sessionId}
+            onToggleDashboard={handleToggleDashboard}
+            showDashboard={showDashboard}
+          />
+        </div>
+      </div>
+
+      {/* 메인 채팅 영역 */}
       <div className="flex-1 flex flex-col h-full">
         {showDashboard ? (
           <FileDashboard />
@@ -584,6 +665,7 @@ export default function ChatWindow() {
             <div className="flex-1 overflow-y-auto p-4 bg-white">
               {messages.map(renderMessage)}
               {isLoading && <LoadingMessage />}
+              <div ref={messagesEndRef} />
             </div>
 
             <div className="border-t border-gray-200 flex items-center">

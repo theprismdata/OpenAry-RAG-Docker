@@ -26,10 +26,11 @@ def copy_files_recursively_flat(source_dir, destination_dir):
             
             # 대상 경로 생성
             # dest_path = os.path.join(destination_dir, flat_filename)
+            dest_path = os.path.join(destination_dir, file)
             
             # 파일 복사
-            # shutil.copy2(source_path, dest_path)
-            # print(f"파일 복사됨: {source_path} -> {dest_path}")
+            shutil.copy2(source_path, dest_path)
+            print(f"파일 복사됨: {source_path} -> {dest_path}")
 
 def main():
     # 현재 작업 디렉토리
