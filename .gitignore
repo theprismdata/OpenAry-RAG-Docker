@@ -12,4 +12,4 @@ docker-compose-debug.yaml
 config/svc-set.dev.yaml
 chatapp/dist/
 chatapp/backup_src
-nginx/logs/
+nginx/logs
