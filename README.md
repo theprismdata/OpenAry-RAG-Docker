@@ -59,6 +59,8 @@ cd nginx
 
 ```
 docker-compose -f .\docker-compose.dev.noweb.yaml up -d
+cd chatapp
+npm run dev-windows
 ```
 
 #### CASE 2: WEB, CHATAPI Debug
