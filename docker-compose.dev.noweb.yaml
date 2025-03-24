@@ -77,13 +77,13 @@ services:
     networks:
       - openary_network
     #GPU 사용시
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
   rabbitmq:
     image: rabbitmq:3.12-management
     container_name: rabbitmq

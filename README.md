@@ -56,13 +56,11 @@ cd nginx
 ```
 
 #### CASE 1 : WEB Debug
-
 ```
 docker-compose -f .\docker-compose.dev.noweb.yaml up -d
 ```
 
 #### CASE 2: WEB, CHATAPI Debug
-
 Windows PowerShell에서 1,2 마다 개별로 새창을 띄우세요
 
 ```
@@ -73,7 +71,6 @@ Windows PowerShell에서 1,2 마다 개별로 새창을 띄우세요
 ```
 
 #### CASE 3: CHATAPI Debug
-
 1. docker-compose -f .\docker-compose.dev.nochatapi.yaml up -d
 
 ```commandline
